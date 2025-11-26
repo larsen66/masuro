@@ -8,9 +8,16 @@ import {
 } from "./queries";
 import type { PortfolioItem, Category, HeroSection, SiteSettings } from "./types";
 
+// Revalidate data every 10 seconds for fresh content
+const REVALIDATE_TIME = 10;
+
 export async function getPortfolioItems(): Promise<PortfolioItem[]> {
   try {
-    return await client.fetch(portfolioItemsQuery);
+    return await client.fetch(
+      portfolioItemsQuery,
+      {},
+      { next: { revalidate: REVALIDATE_TIME } }
+    );
   } catch {
     console.error("Failed to fetch portfolio items from Sanity");
     return [];
@@ -21,7 +28,11 @@ export async function getPortfolioItemsByCategory(
   categorySlug: string
 ): Promise<PortfolioItem[]> {
   try {
-    return await client.fetch(portfolioItemsByCategoryQuery, { categorySlug });
+    return await client.fetch(
+      portfolioItemsByCategoryQuery,
+      { categorySlug },
+      { next: { revalidate: REVALIDATE_TIME } }
+    );
   } catch {
     console.error("Failed to fetch portfolio items by category from Sanity");
     return [];
@@ -30,7 +41,11 @@ export async function getPortfolioItemsByCategory(
 
 export async function getCategories(): Promise<Category[]> {
   try {
-    return await client.fetch(categoriesQuery);
+    return await client.fetch(
+      categoriesQuery,
+      {},
+      { next: { revalidate: REVALIDATE_TIME } }
+    );
   } catch {
     console.error("Failed to fetch categories from Sanity");
     return [];
@@ -39,7 +54,11 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getHeroSection(page: string): Promise<HeroSection | null> {
   try {
-    return await client.fetch(heroSectionQuery, { page });
+    return await client.fetch(
+      heroSectionQuery,
+      { page },
+      { next: { revalidate: REVALIDATE_TIME } }
+    );
   } catch {
     console.error("Failed to fetch hero section from Sanity");
     return null;
@@ -48,7 +67,11 @@ export async function getHeroSection(page: string): Promise<HeroSection | null> 
 
 export async function getSiteSettings(): Promise<SiteSettings | null> {
   try {
-    return await client.fetch(siteSettingsQuery);
+    return await client.fetch(
+      siteSettingsQuery,
+      {},
+      { next: { revalidate: REVALIDATE_TIME } }
+    );
   } catch {
     console.error("Failed to fetch site settings from Sanity");
     return null;
@@ -63,4 +86,3 @@ export function getImageUrl(image: unknown, width = 600, height = 340): string {
     return "";
   }
 }
-
