@@ -28,11 +28,7 @@ export default function AllPage() {
   return (
     <MainLayout activeNav="/all">
       <Suspense fallback={
-        <HeroSection 
-          badge="ყველა პროექტი"
-          title={<>ჩვენი<span className="text-primary"> პორტფოლიო </span></>}
-          description="ნახეთ ჩვენი ყველა პროექტი — ლოკალიზაცია, 2D ანიმაცია, გრაფიკა და სხვა. წლების განმავლობაში შექმნილი საუკეთესო ნამუშევრები."
-        />
+        <HeroSection showSvgHero={true} />
       }>
         <HeroSectionServer 
           page="all"

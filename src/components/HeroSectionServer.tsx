@@ -15,6 +15,11 @@ export async function HeroSectionServer({
   fallbackTitle,
   fallbackDescription,
 }: HeroSectionServerProps) {
+  // For "all" page, show SVG hero instead of text
+  if (page === "all") {
+    return <HeroSection showSvgHero={true} />;
+  }
+
   const heroData = await getHeroSection(page);
 
   if (heroData && heroData.titlePart1) {

@@ -2,19 +2,178 @@
 
 import { Button } from "@/components/ui/button";
 import { Play, ArrowRight } from "lucide-react";
-import { ReactNode } from "react";
+import { ReactNode, useState, useRef, useCallback, useMemo } from "react";
 
 interface HeroSectionProps {
   badge?: string;
   title?: ReactNode;
   description?: string;
+  showSvgHero?: boolean;
 }
 
 export function HeroSection({ 
   badge = "ლოკალიზაცია • დუბლაჟი • გრაფიკა",
   title = <>პროფესიონალური<span className="text-primary"> ვიდეო </span>ლოკალიზაცია</>,
-  description = "ჩვენ ვქმნით მაღალი ხარისხის ვიდეო კონტენტს თქვენი ბრენდისთვის. დუბლაჟი, სუბტიტრები, გრაფიკა და ანიმაცია — ყველაფერი ერთ სივრცეში."
+  description = "ჩვენ ვქმნით მაღალი ხარისხის ვიდეო კონტენტს თქვენი ბრენდისთვის. დუბლაჟი, სუბტიტრები, გრაფიკა და ანიმაცია — ყველაფერი ერთ სივრცეში.",
+  showSvgHero = false
 }: HeroSectionProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
+
+  // Handle mouse move to track cursor position with throttling via requestAnimationFrame
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+    }
+    
+    rafRef.current = requestAnimationFrame(() => {
+      if (!containerRef.current) return;
+      
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      setMousePosition({ x, y });
+      rafRef.current = null;
+    });
+  }, []);
+
+  // Мемоизируем стиль маски для оптимизации производительности
+  const radius = 210; // Радиус области в пикселях
+  const maskStyle = useMemo(() => {
+    if (!showSvgHero) return {};
+    if (isHovered && mousePosition.x > 0 && mousePosition.y > 0) {
+      return {
+        maskImage: `radial-gradient(circle ${radius}px at ${mousePosition.x}px ${mousePosition.y}px, black 0%, black 30%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.2) 70%, transparent 100%)`,
+        WebkitMaskImage: `radial-gradient(circle ${radius}px at ${mousePosition.x}px ${mousePosition.y}px, black 0%, black 30%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.2) 70%, transparent 100%)`,
+        maskSize: '100% 100%',
+        WebkitMaskSize: '100% 100%',
+        maskRepeat: 'no-repeat',
+        WebkitMaskRepeat: 'no-repeat',
+        maskPosition: '0 0',
+        WebkitMaskPosition: '0 0',
+        willChange: 'mask-image',
+      };
+    }
+    return {
+      maskImage: 'none',
+      WebkitMaskImage: 'none',
+    };
+  }, [showSvgHero, isHovered, mousePosition.x, mousePosition.y]);
+
+  // If showSvgHero is true, render SVG hero section
+  if (showSvgHero) {
+    
+    return (
+      <section 
+        className="relative h-screen mb-4 md:mb-8"
+        style={{
+          width: '138vw',
+          maxWidth: '138vw',
+          marginLeft: 'calc(-69vw + 50%)',
+          marginRight: 'calc(-69vw + 50%)',
+        }}
+      >
+        <div 
+          ref={containerRef}
+          className="relative w-full h-full cursor-pointer"
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => {
+            setIsHovered(false);
+            setMousePosition({ x: 0, y: 0 });
+          }}
+          onMouseMove={handleMouseMove}
+        >
+            {/* Base SVG (1.svg) */}
+            <img
+              src="/hero-1.svg"
+              alt="Hero"
+              className="absolute"
+              loading="eager"
+              style={{
+                width: '138vw',
+                minWidth: '138vw',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center 20%',
+                display: 'block',
+                left: '50%',
+                top: '0',
+                transform: 'translateX(-50%)',
+                willChange: 'transform',
+              }}
+            />
+            
+            {/* Gradient overlay for edges */}
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '138vw',
+                height: '100%',
+                background: `
+                  linear-gradient(to right, 
+                    rgba(0,0,0,0.4) 0%, 
+                    transparent 8%, 
+                    transparent 92%, 
+                    rgba(0,0,0,0.4) 100%
+                  ),
+                  linear-gradient(to bottom, 
+                    rgba(0,0,0,0.3) 0%, 
+                    transparent 5%, 
+                    transparent 95%, 
+                    rgba(0,0,0,0.3) 100%
+                  )
+                `,
+                mixBlendMode: 'multiply',
+              }}
+            />
+            
+            {/* Hover SVG (2.svg) with circular mask effect */}
+            <div 
+              className={`absolute pointer-events-none ${
+                isHovered ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                width: '138vw',
+                minWidth: '138vw',
+                height: '100%',
+                transition: 'opacity 0.2s ease',
+                left: '50%',
+                top: '0',
+                transform: 'translateX(-50%) translateZ(0)',
+                willChange: 'opacity, mask-image',
+                ...maskStyle,
+              }}
+            >
+              <img
+                src="/hero-2.svg"
+                alt="Hero Hover"
+                loading="lazy"
+                style={{
+                  width: '138vw',
+                  minWidth: '138vw',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center 20%',
+                  display: 'block',
+                  willChange: 'opacity, mask-image',
+                }}
+              />
+            </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Default text-based hero section
   return (
     <section className="relative py-8 md:py-16 px-4 mb-4 md:mb-8">
       {/* Decorative gradient */}
