@@ -8,8 +8,8 @@ import {
 } from "./queries";
 import type { PortfolioItem, Category, HeroSection, SiteSettings } from "./types";
 
-// Revalidate data every 10 seconds for fresh content
-const REVALIDATE_TIME = 10;
+// Revalidate data every 5 minutes for better performance
+const REVALIDATE_TIME = 300;
 
 export async function getPortfolioItems(): Promise<PortfolioItem[]> {
   try {

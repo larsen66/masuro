@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import Image from "next/image";
 import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { VideoPreview } from "./VideoPreview";
+
+// Lazy load VideoPreview to improve initial page load
+const VideoPreview = lazy(() => import("./VideoPreview").then(mod => ({ default: mod.VideoPreview })));
 
 interface PortfolioCardProps {
   title: string;
@@ -50,6 +52,8 @@ export function PortfolioCard({
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            loading={index < 3 ? "eager" : "lazy"}
+            priority={index < 3}
           />
           
           {/* Video indicator badge */}
@@ -74,15 +78,17 @@ export function PortfolioCard({
         </div>
       </div>
 
-      <VideoPreview
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        title={title}
-        category={category}
-        imageUrl={imageUrl}
-        videoUrl={videoUrl}
-        description={description}
-      />
+      <Suspense fallback={null}>
+        <VideoPreview
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          title={title}
+          category={category}
+          imageUrl={imageUrl}
+          videoUrl={videoUrl}
+          description={description}
+        />
+      </Suspense>
     </>
   );
 }

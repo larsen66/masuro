@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { VideoPreloader } from "@/components/VideoPreloader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Masuro - Localization & Video Production",
   description: "Professional video localization and production services",
   other: {
-    "preload-video": "/11.webm",
+    // Preconnect hints for external domains
+    "preconnect-cdn": "https://cdn.sanity.io",
   },
 };
 
@@ -31,7 +33,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
-        <VideoPreloader />
         {children}
       </body>
     </html>

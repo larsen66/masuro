@@ -9,17 +9,8 @@ export function VideoPreloader() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Предзагрузка видео через link preload
-  useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.as = "video";
-    link.href = "/11.webm";
-    document.head.appendChild(link);
-
-    return () => {
-      document.head.removeChild(link);
-    };
-  }, []);
+  // Removed preload to avoid blocking page load
+  // Video will load on demand
 
   useEffect(() => {
     const video = videoRef.current;
@@ -118,7 +109,7 @@ export function VideoPreloader() {
           className="w-full h-auto rounded-lg shadow-2xl"
           playsInline
           muted
-          preload="auto"
+          preload="metadata"
           autoPlay
         >
           <source src="/11.webm" type="video/webm" />

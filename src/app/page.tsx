@@ -4,8 +4,8 @@ import { HeroSection } from "@/components/HeroSection";
 import { PortfolioGridServer } from "@/components/PortfolioGridServer";
 import { HeroSectionServer } from "@/components/HeroSectionServer";
 
-// Revalidate every 10 seconds
-export const revalidate = 10;
+// Revalidate every 5 minutes for better performance
+export const revalidate = 300;
 
 // Loading fallback for portfolio grid
 function PortfolioGridSkeleton() {

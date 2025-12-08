@@ -75,6 +75,8 @@ export function HeroSection({
           marginLeft: 'calc(-69vw + 50%)',
           marginRight: 'calc(-69vw + 50%)',
         }}
+        // Add fetchpriority hint for critical hero images
+        data-fetchpriority="high"
       >
         <div 
           ref={containerRef}
@@ -90,12 +92,14 @@ export function HeroSection({
           }}
           onMouseMove={handleMouseMove}
         >
-            {/* Base SVG (1.svg) */}
+            {/* Base SVG (1.svg) - loaded with priority for above-the-fold content */}
             <img
               src="/hero-1.svg"
               alt="Hero"
               className="absolute"
               loading="eager"
+              decoding="async"
+              fetchPriority="high"
               style={{
                 width: '138vw',
                 minWidth: '138vw',
@@ -157,6 +161,7 @@ export function HeroSection({
                 src="/hero-2.svg"
                 alt="Hero Hover"
                 loading="lazy"
+                decoding="async"
                 style={{
                   width: '138vw',
                   minWidth: '138vw',
