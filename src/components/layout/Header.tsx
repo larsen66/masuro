@@ -46,32 +46,31 @@ export function Header({ activeNav = "/" }: HeaderProps) {
       <header 
         className={cn(
           "fixed top-0 left-0 right-0 z-50",
-          "flex items-center justify-between px-4 md:px-6 py-3",
+          "grid grid-cols-3 items-center px-4 md:px-6 py-3",
           "bg-background/90 backdrop-blur-md border-b border-primary/20",
           "transition-transform duration-300 ease-in-out",
           isVisible ? "translate-y-0" : "-translate-y-full"
         )}
       >
-        <div className="flex items-center gap-4 md:gap-6">
+        {/* Left: Logo */}
+        <div className="flex items-center justify-start">
           <Logo />
-          
-          {/* Vertical divider - desktop only */}
-          <div className="hidden md:block h-10 w-px bg-primary/40" />
-          
-          {/* Navigation - desktop */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
-              <NavItem
-                key={item.href}
-                label={item.label}
-                href={item.href}
-                isActive={activeNav === item.href}
-              />
-            ))}
-          </nav>
         </div>
         
-        <div className="flex items-center gap-3">
+        {/* Center: Navigation - desktop */}
+        <nav className="hidden md:flex items-center justify-center gap-1">
+          {navItems.map((item) => (
+            <NavItem
+              key={item.href}
+              label={item.label}
+              href={item.href}
+              isActive={activeNav === item.href}
+            />
+          ))}
+        </nav>
+        
+        {/* Right: Language switcher and mobile menu */}
+        <div className="flex items-center justify-end gap-3">
           <LanguageSwitcher />
           
           {/* Mobile menu button */}

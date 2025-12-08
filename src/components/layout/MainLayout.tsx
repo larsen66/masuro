@@ -11,9 +11,25 @@ interface MainLayoutProps {
   activeNav?: string;
 }
 
+const CURSOR_STORAGE_KEY = "masuro_selected_cursor";
+
 export function MainLayout({ children, activeNav = "/" }: MainLayoutProps) {
   const [cursorIcon, setCursorIcon] = useState<string>("/cursors/selection.svg");
   const [isMobile, setIsMobile] = useState(false);
+
+  // Восстанавливаем курсор из localStorage при загрузке
+  useEffect(() => {
+    const savedCursor = localStorage.getItem(CURSOR_STORAGE_KEY);
+    if (savedCursor) {
+      setCursorIcon(savedCursor);
+    }
+  }, []);
+
+  // Сохраняем курсор в localStorage при изменении
+  const handleCursorChange = (iconPath: string) => {
+    setCursorIcon(iconPath);
+    localStorage.setItem(CURSOR_STORAGE_KEY, iconPath);
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -53,7 +69,7 @@ export function MainLayout({ children, activeNav = "/" }: MainLayoutProps) {
       <Header activeNav={activeNav} />
       
       {/* Floating Sidebar - hidden on mobile via component */}
-      <Sidebar onToolChange={setCursorIcon} />
+      <Sidebar onToolChange={handleCursorChange} initialCursor={cursorIcon} />
       
       {/* Main content - less padding on mobile */}
       <main className="relative z-10 pt-16 md:pt-20 px-4 md:pl-20 md:pr-6 pb-6">

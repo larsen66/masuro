@@ -86,3 +86,8 @@ export function getImageUrl(image: unknown, width = 600, height = 340): string {
     return "";
   }
 }
+
+export function getFileUrl(file: { asset?: { url?: string } } | null | undefined): string | undefined {
+  if (!file?.asset?.url) return undefined;
+  return file.asset.url;
+}

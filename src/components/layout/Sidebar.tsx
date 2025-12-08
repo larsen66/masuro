@@ -29,10 +29,39 @@ const tools: ToolItem[] = [
 
 interface SidebarProps {
   onToolChange?: (iconPath: string) => void;
+  initialCursor?: string;
 }
 
-export function Sidebar({ onToolChange }: SidebarProps) {
-  const [activeTool, setActiveTool] = useState<string>("selection");
+const CURSOR_STORAGE_KEY = "masuro_selected_cursor";
+
+export function Sidebar({ onToolChange, initialCursor }: SidebarProps) {
+  // Определяем активный инструмент на основе сохраненного курсора
+  const getActiveToolFromCursor = (cursorPath: string): string => {
+    const tool = tools.find(t => t.icon === cursorPath);
+    return tool?.id || "selection";
+  };
+
+  const [activeTool, setActiveTool] = useState<string>(() => {
+    if (initialCursor) {
+      return getActiveToolFromCursor(initialCursor);
+    }
+    // Пытаемся восстановить из localStorage
+    if (typeof window !== "undefined") {
+      const savedCursor = localStorage.getItem(CURSOR_STORAGE_KEY);
+      if (savedCursor) {
+        return getActiveToolFromCursor(savedCursor);
+      }
+    }
+    return "selection";
+  });
+
+  // Синхронизируем активный инструмент при изменении initialCursor
+  useEffect(() => {
+    if (initialCursor) {
+      const toolId = getActiveToolFromCursor(initialCursor);
+      setActiveTool(toolId);
+    }
+  }, [initialCursor]); // getActiveToolFromCursor стабильна, так как tools не изменяется
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 

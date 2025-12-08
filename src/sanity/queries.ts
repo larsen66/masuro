@@ -10,6 +10,14 @@ export const portfolioItemsQuery = groq`
     "categorySlug": category->slug.current,
     image,
     videoUrl,
+    videoFile {
+      asset-> {
+        _id,
+        url,
+        originalFilename,
+        mimeType
+      }
+    },
     description,
     client,
     year,
@@ -27,6 +35,14 @@ export const portfolioItemsByCategoryQuery = groq`
     "categorySlug": category->slug.current,
     image,
     videoUrl,
+    videoFile {
+      asset-> {
+        _id,
+        url,
+        originalFilename,
+        mimeType
+      }
+    },
     description,
     client,
     year,
@@ -44,6 +60,14 @@ export const featuredPortfolioItemsQuery = groq`
     "categorySlug": category->slug.current,
     image,
     videoUrl,
+    videoFile {
+      asset-> {
+        _id,
+        url,
+        originalFilename,
+        mimeType
+      }
+    },
     description,
     client,
     year
@@ -87,4 +111,6 @@ export const siteSettingsQuery = groq`
     socialLinks
   }
 `;
+
+
 

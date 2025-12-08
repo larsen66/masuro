@@ -8,6 +8,14 @@ export interface PortfolioItem {
   categorySlug: string;
   image: SanityImageSource;
   videoUrl?: string;
+  videoFile?: {
+    asset?: {
+      _id: string;
+      url: string;
+      originalFilename?: string;
+      mimeType?: string;
+    };
+  };
   description?: string;
   client?: string;
   year?: number;
@@ -45,4 +53,6 @@ export interface SiteSettings {
     url: string;
   }>;
 }
+
+
 

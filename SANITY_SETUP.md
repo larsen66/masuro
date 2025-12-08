@@ -87,3 +87,5 @@ When deploying to Vercel/Netlify:
 1. Add environment variables in your hosting dashboard
 2. Add your production URL to Sanity CORS settings
 
+
+

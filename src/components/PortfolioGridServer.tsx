@@ -1,4 +1,4 @@
-import { getPortfolioItems, getPortfolioItemsByCategory, getImageUrl } from "@/sanity/lib";
+import { getPortfolioItems, getPortfolioItemsByCategory, getImageUrl, getFileUrl } from "@/sanity/lib";
 import { PortfolioGridClient } from "./PortfolioGridClient";
 import type { PortfolioItem } from "@/sanity/types";
 
@@ -39,14 +39,19 @@ export async function PortfolioGridServer({ category, categorySlug }: PortfolioG
 
   // If CMS returns data, transform it
   if (items && items.length > 0) {
-    const transformedItems = items.map((item) => ({
-      id: item._id,
-      title: item.title,
-      category: item.category,
-      imageUrl: getImageUrl(item.image) || "https://picsum.photos/seed/default/600/340",
-      videoUrl: item.videoUrl,
-      description: item.description,
-    }));
+    const transformedItems = items.map((item) => {
+      // Prioritize videoFile over videoUrl if both exist
+      const videoUrl = getFileUrl(item.videoFile) || item.videoUrl;
+      
+      return {
+        id: item._id,
+        title: item.title,
+        category: item.category,
+        imageUrl: getImageUrl(item.image) || "https://picsum.photos/seed/default/600/340",
+        videoUrl: videoUrl,
+        description: item.description,
+      };
+    });
 
     return <PortfolioGridClient items={transformedItems} />;
   }

@@ -79,7 +79,9 @@ export function VideoPreview({
   };
 
   const renderVideoPlayer = () => {
-    if (!videoInfo || !isPlaying) return null;
+    if (!videoUrl || !isPlaying) return null;
+
+    if (!videoInfo) return null;
 
     if (videoInfo.type === "youtube") {
       return (
@@ -105,13 +107,18 @@ export function VideoPreview({
       );
     }
 
-    // Direct video URL
+    // Direct video URL (including files from Sanity)
     return (
       <video
+        key={videoUrl}
         src={videoUrl}
         controls
         autoPlay
+        playsInline
         className="absolute inset-0 w-full h-full object-contain"
+        onError={(e) => {
+          console.error("Video playback error:", e);
+        }}
       >
         Your browser does not support the video tag.
       </video>
