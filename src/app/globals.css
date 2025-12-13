@@ -160,3 +160,17 @@
   animation: fade-in-down 0.6s ease-out forwards;
   opacity: 0;
 }
+
+/* Grid background pattern - moved to CSS to avoid hydration issues */
+.bg-grid-pattern {
+  background-image: linear-gradient(rgba(163, 25, 91, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(163, 25, 91, 0.5) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Dotted pattern - moved to CSS to avoid hydration issues */
+.bg-dotted-pattern {
+  background-image: radial-gradient(circle, rgba(163, 25, 91, 0.4) 1px, transparent 1px);
+  background-size: 12px 12px;
+  background-position: 0 0;
+}

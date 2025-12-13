@@ -122,6 +122,7 @@ export function Sidebar({ onToolChange, initialCursor }: SidebarProps) {
             width={20}
             height={20}
             className="w-5 h-5"
+            suppressHydrationWarning
             style={{
               filter: activeTool === tool.id 
                 ? "brightness(0) saturate(100%) invert(18%) sepia(82%) saturate(2847%) hue-rotate(322deg) brightness(89%) contrast(97%)" 

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "სულ", href: "/all" },
-  { label: "ლოკალიზაცია", href: "/" },
+  { label: "ლოკალიზაცია", href: "/localization" },
   { label: "2D ანიმაცია", href: "/animation" },
   { label: "გრაფიკა", href: "/graphics" },
 ];

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Play, ArrowRight } from "lucide-react";
-import { ReactNode, useState, useRef, useCallback, useMemo } from "react";
+import { ReactNode, useState, useRef, useCallback, useEffect } from "react";
 
 interface HeroSectionProps {
   badge?: string;
@@ -18,50 +18,72 @@ export function HeroSection({
   showSvgHero = false
 }: HeroSectionProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const hero1Ref = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const maskElementRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
+  const lastUpdateTime = useRef<number>(0);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const throttleDelay = 16; // ~60fps
+  const radius = 210; // Радиус области в пикселях
+
+  // Ensure hero-1 image is visible when component mounts (for cached images)
+  useEffect(() => {
+    if (showSvgHero && hero1Ref.current) {
+      const img = hero1Ref.current;
+      // If image is already loaded (cached), ensure it's visible
+      if (img.complete && img.naturalHeight !== 0) {
+        img.style.opacity = '1';
+      }
+    }
+  }, [showSvgHero]);
 
   // Handle mouse move to track cursor position with throttling via requestAnimationFrame
+  // Прямое обновление маски через ref для максимальной производительности
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    // Отменяем таймер скрытия, если курсор вернулся
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+
+    const now = performance.now();
+    if (now - lastUpdateTime.current < throttleDelay) {
+      return;
+    }
+    lastUpdateTime.current = now;
+
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
     }
     
     rafRef.current = requestAnimationFrame(() => {
-      if (!containerRef.current) return;
+      if (!containerRef.current || !maskElementRef.current) return;
       
       const rect = containerRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       
-      setMousePosition({ x, y });
+      // Прямое обновление маски через DOM - быстрее чем через React state
+      const maskValue = `radial-gradient(circle ${radius}px at ${x}px ${y}px, black 0%, black 30%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.2) 70%, transparent 100%)`;
+      maskElementRef.current.style.maskImage = maskValue;
+      maskElementRef.current.style.webkitMaskImage = maskValue;
+      
       rafRef.current = null;
     });
-  }, []);
+  }, [radius]);
 
-  // Мемоизируем стиль маски для оптимизации производительности
-  const radius = 210; // Радиус области в пикселях
-  const maskStyle = useMemo(() => {
-    if (!showSvgHero) return {};
-    if (isHovered && mousePosition.x > 0 && mousePosition.y > 0) {
-      return {
-        maskImage: `radial-gradient(circle ${radius}px at ${mousePosition.x}px ${mousePosition.y}px, black 0%, black 30%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.2) 70%, transparent 100%)`,
-        WebkitMaskImage: `radial-gradient(circle ${radius}px at ${mousePosition.x}px ${mousePosition.y}px, black 0%, black 30%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.2) 70%, transparent 100%)`,
-        maskSize: '100% 100%',
-        WebkitMaskSize: '100% 100%',
-        maskRepeat: 'no-repeat',
-        WebkitMaskRepeat: 'no-repeat',
-        maskPosition: '0 0',
-        WebkitMaskPosition: '0 0',
-        willChange: 'mask-image',
-      };
-    }
-    return {
-      maskImage: 'none',
-      WebkitMaskImage: 'none',
+  // Cleanup таймеров при размонтировании
+  useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
     };
-  }, [showSvgHero, isHovered, mousePosition.x, mousePosition.y]);
+  }, []);
 
   // If showSvgHero is true, render SVG hero section
   if (showSvgHero) {
@@ -85,21 +107,56 @@ export function HeroSection({
             width: '100%',
             height: '100%',
           }}
-          onMouseEnter={() => setIsHovered(true)}
+          onMouseEnter={() => {
+            // Отменяем таймер скрытия, если он был установлен
+            if (hideTimeoutRef.current) {
+              clearTimeout(hideTimeoutRef.current);
+              hideTimeoutRef.current = null;
+            }
+            setIsHovered(true);
+          }}
           onMouseLeave={() => {
-            setIsHovered(false);
-            setMousePosition({ x: 0, y: 0 });
+            // Плавно скрываем маску с небольшой задержкой для плавности
+            hideTimeoutRef.current = setTimeout(() => {
+              setIsHovered(false);
+              if (maskElementRef.current) {
+                // Не убираем маску сразу, пусть она исчезнет через opacity transition
+                // maskElementRef.current.style.maskImage = 'none';
+                // maskElementRef.current.style.webkitMaskImage = 'none';
+              }
+            }, 150); // Небольшая задержка для плавности
           }}
           onMouseMove={handleMouseMove}
         >
+            {/* Placeholder background while SVG loads */}
+            <div 
+              className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-primary/5"
+              style={{
+                width: '138vw',
+                minWidth: '138vw',
+                height: '100%',
+                left: '50%',
+                top: '0',
+                transform: 'translateX(-50%)',
+              }}
+            />
+            
             {/* Base SVG (1.svg) - loaded with priority for above-the-fold content */}
             <img
+              ref={hero1Ref}
               src="/hero-1.svg"
               alt="Hero"
-              className="absolute"
+              className="absolute transition-opacity duration-500"
               loading="eager"
               decoding="async"
               fetchPriority="high"
+              onLoad={(e) => {
+                e.currentTarget.style.opacity = '1';
+              }}
+              onError={(e) => {
+                console.error('Failed to load hero-1.svg');
+                e.currentTarget.style.opacity = '1';
+              }}
               style={{
                 width: '138vw',
                 minWidth: '138vw',
@@ -111,6 +168,9 @@ export function HeroSection({
                 top: '0',
                 transform: 'translateX(-50%)',
                 willChange: 'transform',
+                opacity: 1,
+                filter: 'none',
+                WebkitFilter: 'none',
               }}
             />
             
@@ -140,8 +200,9 @@ export function HeroSection({
               }}
             />
             
-            {/* Hover SVG (2.svg) with circular mask effect */}
+            {/* Hover SVG (2.svg) with circular mask effect - lazy loaded */}
             <div 
+              ref={maskElementRef}
               className={`absolute pointer-events-none ${
                 isHovered ? 'opacity-100' : 'opacity-0'
               }`}
@@ -149,12 +210,19 @@ export function HeroSection({
                 width: '138vw',
                 minWidth: '138vw',
                 height: '100%',
-                transition: 'opacity 0.2s ease',
+                transition: 'opacity 0.3s ease-out',
                 left: '50%',
                 top: '0',
                 transform: 'translateX(-50%) translateZ(0)',
                 willChange: 'opacity, mask-image',
-                ...maskStyle,
+                maskImage: 'none',
+                WebkitMaskImage: 'none',
+                maskSize: '100% 100%',
+                WebkitMaskSize: '100% 100%',
+                maskRepeat: 'no-repeat',
+                WebkitMaskRepeat: 'no-repeat',
+                maskPosition: '0 0',
+                WebkitMaskPosition: '0 0',
               }}
             >
               <img
@@ -162,6 +230,13 @@ export function HeroSection({
                 alt="Hero Hover"
                 loading="lazy"
                 decoding="async"
+                fetchPriority="low"
+                onLoad={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                }}
+                onError={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                }}
                 style={{
                   width: '138vw',
                   minWidth: '138vw',
@@ -170,6 +245,9 @@ export function HeroSection({
                   objectPosition: 'center 20%',
                   display: 'block',
                   willChange: 'opacity, mask-image',
+                  opacity: 1,
+                  filter: 'none',
+                  WebkitFilter: 'none',
                 }}
               />
             </div>

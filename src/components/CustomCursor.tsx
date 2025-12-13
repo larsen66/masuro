@@ -10,9 +10,17 @@ interface CustomCursorProps {
 export function CustomCursor({ cursorIcon }: CustomCursorProps) {
   const [position, setPosition] = useState({ x: -100, y: -100 });
   const [isVisible, setIsVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
 
+  // Убеждаемся, что компонент монтирован только на клиенте
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       // Используем requestAnimationFrame для плавности
       requestAnimationFrame(() => {
@@ -38,9 +46,10 @@ export function CustomCursor({ cursorIcon }: CustomCursorProps) {
       document.documentElement.removeEventListener("mouseleave", handleMouseLeave);
       document.documentElement.removeEventListener("mouseenter", handleMouseEnter);
     };
-  }, [isVisible]);
+  }, [isVisible, isMounted]);
 
-  if (!cursorIcon) return null;
+  // Не рендерим на сервере, чтобы избежать hydration mismatch
+  if (!isMounted || !cursorIcon) return null;
 
   return (
     <div
@@ -53,6 +62,7 @@ export function CustomCursor({ cursorIcon }: CustomCursorProps) {
         opacity: isVisible ? 1 : 0,
         willChange: "transform",
       }}
+      suppressHydrationWarning
     >
       <Image
         src={cursorIcon}
@@ -63,8 +73,9 @@ export function CustomCursor({ cursorIcon }: CustomCursorProps) {
         style={{
           filter: "brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(70%) contrast(100%) drop-shadow(0 1px 3px rgba(0,0,0,0.6))"
         }}
-        priority
+        loading="lazy"
         unoptimized
+        suppressHydrationWarning
       />
     </div>
   );

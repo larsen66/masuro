@@ -10,3 +10,4 @@ export { VideoPreview } from "./VideoPreview";
 export { CustomCursor } from "./CustomCursor";
 export { HeroSection } from "./HeroSection";
 export { HeroSectionServer } from "./HeroSectionServer";
+export { DefaultLoader } from "./DefaultLoader";

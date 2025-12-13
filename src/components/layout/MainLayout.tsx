@@ -16,22 +16,19 @@ const CURSOR_STORAGE_KEY = "masuro_selected_cursor";
 export function MainLayout({ children, activeNav = "/" }: MainLayoutProps) {
   const [cursorIcon, setCursorIcon] = useState<string>("/cursors/selection.svg");
   const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Восстанавливаем курсор из localStorage при загрузке
+  // Убеждаемся, что компонент монтирован только на клиенте
   useEffect(() => {
+    setIsMounted(true);
+    
+    // Восстанавливаем курсор из localStorage при загрузке
     const savedCursor = localStorage.getItem(CURSOR_STORAGE_KEY);
     if (savedCursor) {
       setCursorIcon(savedCursor);
     }
-  }, []);
 
-  // Сохраняем курсор в localStorage при изменении
-  const handleCursorChange = (iconPath: string) => {
-    setCursorIcon(iconPath);
-    localStorage.setItem(CURSOR_STORAGE_KEY, iconPath);
-  };
-
-  useEffect(() => {
+    // Проверяем размер экрана
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -41,23 +38,26 @@ export function MainLayout({ children, activeNav = "/" }: MainLayoutProps) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Сохраняем курсор в localStorage при изменении
+  const handleCursorChange = (iconPath: string) => {
+    setCursorIcon(iconPath);
+    if (isMounted) {
+      localStorage.setItem(CURSOR_STORAGE_KEY, iconPath);
+    }
+  };
+
   return (
     <div 
-      className={`min-h-screen bg-background relative overflow-x-hidden ${!isMobile ? "cursor-none" : ""}`}
+      className={`min-h-screen bg-background relative overflow-x-hidden ${isMounted && !isMobile ? "cursor-none" : ""}`}
+      suppressHydrationWarning
     >
       {/* Custom cursor - only on desktop */}
-      {!isMobile && <CustomCursor cursorIcon={cursorIcon} />}
+      {isMounted && !isMobile && <CustomCursor cursorIcon={cursorIcon} />}
       
       {/* Grid background pattern */}
       <div 
-        className="fixed inset-0 opacity-5 pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(163, 25, 91, 0.5) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(163, 25, 91, 0.5) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
-        }}
+        className="fixed inset-0 opacity-5 pointer-events-none bg-grid-pattern"
+        suppressHydrationWarning
       />
       
       {/* Dotted pattern on the right - hidden on mobile */}

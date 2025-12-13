@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Play, ExternalLink } from "lucide-react";
 import Image from "next/image";
+import { DefaultLoader } from "./DefaultLoader";
 
 interface VideoPreviewProps {
   isOpen: boolean;
@@ -63,18 +64,25 @@ export function VideoPreview({
   description,
 }: VideoPreviewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const videoInfo = videoUrl ? getVideoInfo(videoUrl) : null;
   
   // Reset playing state when dialog closes
   useEffect(() => {
     if (!isOpen) {
       setIsPlaying(false);
+      setIsLoading(false);
     }
   }, [isOpen]);
 
   const handlePlay = () => {
     if (videoUrl) {
+      setIsLoading(true);
       setIsPlaying(true);
+      // Скрываем загрузчик через небольшую задержку после начала воспроизведения
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
     }
   };
 
@@ -150,6 +158,11 @@ export function VideoPreview({
         
         {/* Video player area */}
         <div className="relative aspect-video bg-black m-4 mt-2 rounded-lg overflow-hidden group">
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <DefaultLoader size="medium" />
+            </div>
+          )}
           {isPlaying ? (
             renderVideoPlayer()
           ) : (
@@ -160,6 +173,7 @@ export function VideoPreview({
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 900px"
+                suppressHydrationWarning
               />
               
               {/* Play button overlay */}
