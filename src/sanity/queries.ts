@@ -9,6 +9,7 @@ export const portfolioItemsQuery = groq`
     "category": category->title,
     "categorySlug": category->slug.current,
     image,
+    images,
     videoUrl,
     videoFile {
       asset-> {
@@ -34,6 +35,7 @@ export const portfolioItemsByCategoryQuery = groq`
     "category": category->title,
     "categorySlug": category->slug.current,
     image,
+    images,
     videoUrl,
     videoFile {
       asset-> {
@@ -59,6 +61,7 @@ export const featuredPortfolioItemsQuery = groq`
     "category": category->title,
     "categorySlug": category->slug.current,
     image,
+    images,
     videoUrl,
     videoFile {
       asset-> {
@@ -108,7 +111,11 @@ export const siteSettingsQuery = groq`
     seoTitle,
     seoDescription,
     contactEmail,
-    socialLinks
+    whatsappNumber,
+    instagramUrl,
+    facebookUrl,
+    telegramUrl,
+    phoneNumber
   }
 `;
 

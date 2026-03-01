@@ -12,6 +12,7 @@ const navItems = [
   { label: "ლოკალიზაცია", href: "/localization" },
   { label: "2D ანიმაცია", href: "/animation" },
   { label: "გრაფიკა", href: "/graphics" },
+  { label: "Voice", href: "/voice" },
 ];
 
 interface HeaderProps {

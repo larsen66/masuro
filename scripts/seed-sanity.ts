@@ -256,11 +256,11 @@ const siteSettings = {
   seoTitle: "Masuro - პროფესიონალური ვიდეო ლოკალიზაცია",
   seoDescription: "ჩვენ ვქმნით მაღალი ხარისხის ვიდეო კონტენტს თქვენი ბრენდისთვის. დუბლაჟი, სუბტიტრები, გრაფიკა და ანიმაცია.",
   contactEmail: "info@masuro.ge",
-  socialLinks: [
-    { platform: "Facebook", url: "https://facebook.com/masuro" },
-    { platform: "Instagram", url: "https://instagram.com/masuro" },
-    { platform: "YouTube", url: "https://youtube.com/masuro" },
-  ],
+  whatsappNumber: "+995555123456",
+  instagramUrl: "https://instagram.com/masuro",
+  facebookUrl: "https://facebook.com/masuro",
+  telegramUrl: "https://t.me/masuro",
+  phoneNumber: "+995555123456",
 };
 
 async function seed() {

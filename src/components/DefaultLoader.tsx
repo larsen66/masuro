@@ -19,6 +19,7 @@ export function DefaultLoader({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    if (size === "small") return;
     const video = videoRef.current;
     if (!video) return;
 
@@ -61,15 +62,7 @@ export function DefaultLoader({
       video.removeEventListener("loadeddata", handleLoadedData);
       video.removeEventListener("ended", handleEnded);
     };
-  }, []);
-
-  // Размеры для разных вариантов (как спиннер)
-  const sizeClasses = {
-    small: 'max-w-[32px] w-8 h-8', // Размер как у спиннера
-    medium: 'max-w-[160px]',
-    large: 'max-w-[240px]',
-    fullscreen: 'max-w-[320px] w-full'
-  };
+  }, [size]);
 
   const containerClasses = size === 'fullscreen' 
     ? 'fixed inset-0 z-[9999] flex items-center justify-center'
@@ -79,13 +72,32 @@ export function DefaultLoader({
     ? 'bg-background/95' 
     : '';
 
+  if (size === "small") {
+    return (
+      <div className={`${containerClasses} ${backgroundClasses} ${className}`}>
+        <div
+          className="w-6 h-6 rounded-full border-2 border-primary/40 border-t-primary animate-spin"
+          aria-label="Loading"
+        />
+      </div>
+    );
+  }
+
+  // Размеры для разных вариантов (как спиннер)
+  const sizeClasses = {
+    small: 'max-w-[32px] w-8 h-8', // Размер как у спиннера
+    medium: 'max-w-[160px]',
+    large: 'max-w-[240px]',
+    fullscreen: 'max-w-[320px] w-full'
+  };
+
   // Всегда показываем видео 11.webm
   return (
     <div className={`${containerClasses} ${backgroundClasses} ${className}`}>
-      <div className={`relative ${sizeClasses[size]} ${size === 'small' ? 'mx-0' : 'mx-4'}`}>
+      <div className={`relative ${sizeClasses[size]} mx-4`}>
         <video
           ref={videoRef}
-          className={`${size === 'small' ? 'w-full h-full object-contain' : 'w-full h-auto rounded-lg shadow-2xl'}`}
+          className="w-full h-auto rounded-lg shadow-2xl"
           playsInline
           muted
           loop
@@ -99,4 +111,3 @@ export function DefaultLoader({
     </div>
   );
 }
-

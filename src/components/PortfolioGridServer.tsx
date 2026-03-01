@@ -1,4 +1,4 @@
-import { getPortfolioItems, getPortfolioItemsByCategory, getImageUrl, getFileUrl } from "@/sanity/lib";
+import { getPortfolioItems, getPortfolioItemsByCategory, getImageUrl, getFileUrl, getVideoThumbnail } from "@/sanity/lib";
 import { PortfolioGridClient } from "./PortfolioGridClient";
 import type { PortfolioItem } from "@/sanity/types";
 
@@ -43,11 +43,48 @@ export async function PortfolioGridServer({ category, categorySlug }: PortfolioG
       // Prioritize videoFile over videoUrl if both exist
       const videoUrl = getFileUrl(item.videoFile) || item.videoUrl;
       
+      // Get image URLs - prioritize images array, fallback to single image
+      let imageUrls: string[] | undefined;
+      let imageUrl: string;
+      
+      if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+        // Use images array
+        imageUrls = item.images
+          .map((img) => getImageUrl(img))
+          .filter((url) => url !== "");
+        imageUrl = imageUrls[0] || "";
+      } else if (item.image) {
+        // Fallback to single image (backward compatibility)
+        imageUrl = getImageUrl(item.image) || "";
+      } else {
+        imageUrl = "";
+      }
+      
+      // If no image is available, try to use video thumbnail
+      if (!imageUrl && videoUrl) {
+        const videoThumbnail = getVideoThumbnail(videoUrl, item.videoFile);
+        if (videoThumbnail) {
+          imageUrl = videoThumbnail;
+          // If we have imageUrls array, add thumbnail to it, otherwise create new array
+          if (imageUrls) {
+            imageUrls = [videoThumbnail, ...imageUrls];
+          } else {
+            imageUrls = [videoThumbnail];
+          }
+        }
+      }
+      
+      // Final fallback to placeholder
+      if (!imageUrl) {
+        imageUrl = "https://picsum.photos/seed/default/600/340";
+      }
+      
       return {
         id: item._id,
         title: item.title,
         category: item.category,
-        imageUrl: getImageUrl(item.image) || "https://picsum.photos/seed/default/600/340",
+        imageUrl: imageUrl,
+        imageUrls: imageUrls, // Pass array if available
         videoUrl: videoUrl,
         description: item.description,
       };

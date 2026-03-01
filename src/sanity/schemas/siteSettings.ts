@@ -4,6 +4,13 @@ export const siteSettings = defineType({
   name: "siteSettings",
   title: "Site Settings",
   type: "document",
+  fieldsets: [
+    {
+      name: "socials",
+      title: "Social Media & Contacts",
+      options: { collapsible: true, collapsed: false },
+    },
+  ],
   fields: [
     defineField({
       name: "siteName",
@@ -38,18 +45,37 @@ export const siteSettings = defineType({
       type: "string",
     }),
     defineField({
-      name: "socialLinks",
-      title: "Social Links",
-      type: "array",
-      of: [
-        {
-          type: "object",
-          fields: [
-            { name: "platform", type: "string", title: "Platform" },
-            { name: "url", type: "url", title: "URL" },
-          ],
-        },
-      ],
+      name: "whatsappNumber",
+      title: "WhatsApp Number",
+      type: "string",
+      description: "Phone number with country code, e.g. +995555123456",
+      fieldset: "socials",
+    }),
+    defineField({
+      name: "instagramUrl",
+      title: "Instagram URL",
+      type: "url",
+      fieldset: "socials",
+    }),
+    defineField({
+      name: "facebookUrl",
+      title: "Facebook URL",
+      type: "url",
+      fieldset: "socials",
+    }),
+    defineField({
+      name: "telegramUrl",
+      title: "Telegram URL",
+      type: "url",
+      description: "Link to Telegram profile or channel, e.g. https://t.me/username",
+      fieldset: "socials",
+    }),
+    defineField({
+      name: "phoneNumber",
+      title: "Phone Number",
+      type: "string",
+      description: "Phone number for calls, e.g. +995555123456",
+      fieldset: "socials",
     }),
   ],
   preview: {
@@ -60,6 +86,7 @@ export const siteSettings = defineType({
     },
   },
 });
+
 
 
 

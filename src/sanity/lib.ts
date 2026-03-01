@@ -91,3 +91,49 @@ export function getFileUrl(file: { asset?: { url?: string } } | null | undefined
   if (!file?.asset?.url) return undefined;
   return file.asset.url;
 }
+
+// Extract video ID and type from URL
+function getVideoInfo(url: string): { type: "youtube" | "vimeo" | "other"; id: string } | null {
+  if (!url) return null;
+  
+  // YouTube
+  const youtubeMatch = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  if (youtubeMatch) {
+    return { type: "youtube", id: youtubeMatch[1] };
+  }
+  
+  // Vimeo
+  const vimeoMatch = url.match(/(?:vimeo\.com\/)(\d+)/);
+  if (vimeoMatch) {
+    return { type: "vimeo", id: vimeoMatch[1] };
+  }
+  
+  return { type: "other", id: url };
+}
+
+// Get thumbnail URL for video (YouTube, Vimeo, or direct video file)
+export function getVideoThumbnail(videoUrl?: string, videoFile?: { asset?: { url?: string } }): string | null {
+  // Prioritize videoFile over videoUrl
+  const url = (videoFile?.asset?.url) || videoUrl;
+  if (!url) return null;
+  
+  const info = getVideoInfo(url);
+  if (!info) return null;
+  
+  if (info.type === "youtube") {
+    // Try maxresdefault first, fallback to hqdefault
+    return `https://img.youtube.com/vi/${info.id}/maxresdefault.jpg`;
+  }
+  
+  if (info.type === "vimeo") {
+    // Use vumbnail.com service for Vimeo thumbnails (simple and reliable)
+    // Alternative: could use Vimeo oEmbed API, but requires async fetch
+    return `https://vumbnail.com/${info.id}.jpg`;
+  }
+  
+  // For direct video files, we can't get thumbnail server-side easily
+  // Return null and let client handle it
+  return null;
+}

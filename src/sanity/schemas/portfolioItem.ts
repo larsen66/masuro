@@ -30,18 +30,36 @@ export const portfolioItem = defineType({
     }),
     defineField({
       name: "image",
-      title: "Preview Image",
+      title: "Preview Image (Legacy)",
       type: "image",
       options: {
         hotspot: true,
       },
-      validation: (Rule) => Rule.required(),
+      description: "Deprecated: Use 'images' array instead. Kept for backward compatibility.",
+      hidden: true,
+    }),
+    defineField({
+      name: "images",
+      title: "Images / Photos",
+      type: "array",
+      of: [{ type: "image", options: { hotspot: true } }],
+      description: "Upload photos for this project. Multiple images will be displayed as a carousel.",
+      validation: (Rule) =>
+        Rule.custom((images, context) => {
+          const doc = context.document as Record<string, unknown> | undefined;
+          const hasVideo = doc?.videoUrl || doc?.videoFile;
+          const hasImages = images && (images as unknown[]).length > 0;
+          if (!hasVideo && !hasImages) {
+            return "Add at least one photo or video";
+          }
+          return true;
+        }),
     }),
     defineField({
       name: "videoUrl",
       title: "Video URL (YouTube/Vimeo)",
       type: "url",
-      description: "Optional: URL to the video",
+      description: "Optional: URL to the video (YouTube or Vimeo)",
     }),
     defineField({
       name: "videoFile",
@@ -101,12 +119,25 @@ export const portfolioItem = defineType({
       title: "title",
       category: "category.title",
       media: "image",
+      images: "images",
+      videoUrl: "videoUrl",
+      videoFile: "videoFile",
     },
-    prepare({ title, category, media }) {
+    prepare({ title, category, media, images, videoUrl, videoFile }) {
+      const hasVideo = !!videoUrl || !!videoFile;
+      const imageCount = images?.length || 0;
+      const subtitle = [
+        category,
+        imageCount > 0 ? `${imageCount} photo${imageCount > 1 ? "s" : ""}` : null,
+        hasVideo ? "video" : null,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+
       return {
         title,
-        subtitle: category,
-        media,
+        subtitle,
+        media: images?.[0] || media,
       };
     },
   },

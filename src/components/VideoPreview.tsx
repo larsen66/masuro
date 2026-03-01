@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Play, ExternalLink } from "lucide-react";
+import { Play, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 import { DefaultLoader } from "./DefaultLoader";
 
 interface VideoPreviewProps {
@@ -17,8 +18,10 @@ interface VideoPreviewProps {
   title: string;
   category: string;
   imageUrl: string;
+  imageUrls?: string[]; // Array of images for carousel
   videoUrl?: string;
   description?: string;
+  autoPlay?: boolean;
 }
 
 // Extract video ID and type from URL
@@ -60,20 +63,81 @@ export function VideoPreview({
   title,
   category,
   imageUrl,
+  imageUrls,
   videoUrl,
   description,
+  autoPlay = false,
 }: VideoPreviewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  // Use imageUrls array if provided, otherwise fallback to single imageUrl
+  const images = imageUrls && imageUrls.length > 0 ? imageUrls : [imageUrl];
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const videoInfo = videoUrl ? getVideoInfo(videoUrl) : null;
-  
-  // Reset playing state when dialog closes
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
+  // Auto-play video when dialog opens
+  useEffect(() => {
+    if (isOpen && autoPlay && videoUrl) {
+      setIsLoading(true);
+      setIsPlaying(true);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+    }
+  }, [isOpen, autoPlay, videoUrl]);
+
+  // Reset playing state and image index when dialog closes
   useEffect(() => {
     if (!isOpen) {
       setIsPlaying(false);
       setIsLoading(false);
+      setCurrentImageIndex(0);
     }
   }, [isOpen]);
+  
+  const handlePrevious = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  }, [images.length]);
+  
+  const handleNext = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  }, [images.length]);
+  
+  const handleDotClick = useCallback((e: React.MouseEvent, dotIndex: number) => {
+    e.stopPropagation();
+    setCurrentImageIndex(dotIndex);
+  }, []);
+  
+  // Swipe handlers for mobile
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+  
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  }, []);
+  
+  const handleTouchEnd = useCallback(() => {
+    if (!touchStartX.current || !touchEndX.current || images.length <= 1) return;
+    
+    const distance = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50;
+    
+    if (distance > minSwipeDistance) {
+      // Swipe left - next image
+      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    } else if (distance < -minSwipeDistance) {
+      // Swipe right - previous image
+      setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    }
+    
+    touchStartX.current = null;
+    touchEndX.current = null;
+  }, [images.length]);
 
   const handlePlay = () => {
     if (videoUrl) {
@@ -135,8 +199,8 @@ export function VideoPreview({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl bg-card border-primary/30 p-0 overflow-hidden">
-        <DialogHeader className="p-4 pb-0">
+      <DialogContent className="w-[95vw] max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] max-h-[90vh] bg-card border-primary/30 p-0 overflow-hidden">
+        <DialogHeader className="px-3 pt-3 pb-0">
           <DialogTitle className="flex items-center justify-between">
             <div>
               <span className="text-primary text-sm font-normal">{category}</span>
@@ -157,7 +221,12 @@ export function VideoPreview({
         </DialogHeader>
         
         {/* Video player area */}
-        <div className="relative aspect-video bg-black m-4 mt-2 rounded-lg overflow-hidden group">
+        <div 
+          className="relative aspect-video bg-black m-2 rounded-lg overflow-hidden group"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center z-10">
               <DefaultLoader size="medium" />
@@ -167,29 +236,76 @@ export function VideoPreview({
             renderVideoPlayer()
           ) : (
             <>
-              <Image
-                src={imageUrl}
-                alt={title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 900px"
-                suppressHydrationWarning
-              />
-              
-              {/* Play button overlay */}
-              <div 
-                className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors cursor-pointer"
-                onClick={handlePlay}
-              >
-                <button className="w-20 h-20 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center transition-all hover:scale-110 shadow-lg shadow-primary/30">
-                  <Play className="w-8 h-8 text-white ml-1" fill="white" />
-                </button>
+              {/* Images carousel */}
+              <div className="relative w-full h-full">
+                {images.map((img, imgIndex) => (
+                  <div
+                    key={imgIndex}
+                    className={cn(
+                      "absolute inset-0 transition-opacity duration-500",
+                      imgIndex === currentImageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+                    )}
+                  >
+                    <Image
+                      src={img}
+                      alt={`${title} - Image ${imgIndex + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 900px"
+                      suppressHydrationWarning
+                    />
+                  </div>
+                ))}
               </div>
               
-              {/* No video indicator */}
-              {!videoUrl && (
-                <div className="absolute bottom-4 left-4 bg-black/60 px-3 py-1 rounded text-sm text-white/70">
-                  ვიდეო არ არის დამატებული
+              {/* Navigation arrows - only show if more than one image */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={handlePrevious}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-opacity duration-300 text-white"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-opacity duration-300 text-white"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+              
+              {/* Carousel indicators - only show if more than one image */}
+              {images.length > 1 && (
+                <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                  {images.map((_, imgIndex) => (
+                    <button
+                      key={imgIndex}
+                      onClick={(e) => handleDotClick(e, imgIndex)}
+                      className={cn(
+                        "w-2 h-2 rounded-full transition-all duration-300",
+                        imgIndex === currentImageIndex
+                          ? "bg-primary w-8"
+                          : "bg-white/50 hover:bg-white/70"
+                      )}
+                      aria-label={`Go to image ${imgIndex + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Play button overlay - only show if video exists */}
+              {videoUrl && (
+                <div
+                  className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors cursor-pointer z-10"
+                  onClick={handlePlay}
+                >
+                  <button className="w-20 h-20 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center transition-all hover:scale-110 shadow-lg shadow-primary/30">
+                    <Play className="w-8 h-8 text-white ml-1" fill="white" />
+                  </button>
                 </div>
               )}
             </>
@@ -197,13 +313,13 @@ export function VideoPreview({
         </div>
         
         {/* Video info */}
-        <div className="p-4 pt-0">
+        <div className="px-3 pb-3 pt-0">
           {description && (
-            <p className="text-sm text-muted-foreground mb-2">{description}</p>
+            <p className="text-sm text-muted-foreground mb-1">{description}</p>
           )}
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>{videoUrl ? (videoInfo?.type === "youtube" ? "YouTube" : videoInfo?.type === "vimeo" ? "Vimeo" : "Video") : "Preview only"}</span>
-            {videoUrl && <span className="text-primary">Click to play</span>}
+            <span>{videoUrl ? (videoInfo?.type === "youtube" ? "YouTube" : videoInfo?.type === "vimeo" ? "Vimeo" : "Video") : "ფოტო"}</span>
+            {videoUrl && !isPlaying && <span className="text-primary">Click to play</span>}
           </div>
         </div>
       </DialogContent>

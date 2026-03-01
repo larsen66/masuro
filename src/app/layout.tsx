@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
+import { Suspense } from "react";
+import { FloatingSocialServer } from "@/components/FloatingSocialServer";
 import "./globals.css";
-import { VideoPreloader } from "@/components/VideoPreloader";
-import { PerformanceOptimizations } from "@/components/PerformanceOptimizations";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -28,12 +22,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ka" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+        <link rel="preload" href="/hero-1.webp" as="image" type="image/webp" fetchPriority="high" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
+        className={`${geistSans.variable} antialiased min-h-screen`}
       >
-        <PerformanceOptimizations />
-        <VideoPreloader />
         {children}
+        <Suspense fallback={null}>
+          <FloatingSocialServer />
+        </Suspense>
       </body>
     </html>
   );

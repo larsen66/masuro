@@ -6,7 +6,8 @@ export interface PortfolioItem {
   slug: string;
   category: string;
   categorySlug: string;
-  image: SanityImageSource;
+  image?: SanityImageSource; // Legacy field, kept for backward compatibility
+  images?: SanityImageSource[]; // Array of images for carousel
   videoUrl?: string;
   videoFile?: {
     asset?: {
@@ -48,10 +49,11 @@ export interface SiteSettings {
   seoTitle?: string;
   seoDescription?: string;
   contactEmail?: string;
-  socialLinks?: Array<{
-    platform: string;
-    url: string;
-  }>;
+  whatsappNumber?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  telegramUrl?: string;
+  phoneNumber?: string;
 }
 
 
