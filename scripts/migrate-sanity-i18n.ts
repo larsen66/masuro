@@ -54,9 +54,9 @@ const curated: Record<string, Record<string, LocalizedValue>> = {
   "category-graphics": {
     titleTranslations: { ru: "Контент", en: "Content", ka: "კონტენტი" },
     descriptionTranslations: {
-      ru: "Контент, видеосъемка",
-      en: "Content, video production",
-      ka: "კონტენტი, ვიდეო გადაღება",
+      ru: "Визуал, который выделяет ваш бренд. Мы создаём выразительный контент и видео для социальных сетей.",
+      en: "Visuals that make your brand stand out. We create distinctive content and videos for social media.",
+      ka: "ვიზუალი, რომელიც თქვენს ბრენდს გამოარჩევს. ჩვენ ვქმნით გამორჩეულ კონტენტსა და ვიდეოებს სოციალური ქსელებისთვის.",
     },
   },
   "category-animation": {
@@ -111,13 +111,21 @@ const curated: Record<string, Record<string, LocalizedValue>> = {
   },
   "hero-graphics": {
     badgeTranslations: { ru: "Контент", en: "Content", ka: "კონტენტი" },
-    titlePart1Translations: { ru: "SMM", en: "SMM", ka: "სმმ" },
-    titleHighlightTranslations: { ru: "", en: "", ka: "" },
+    titlePart1Translations: {
+      ru: "Креативный",
+      en: "Creative",
+      ka: "კრეატიული",
+    },
+    titleHighlightTranslations: {
+      ru: "контент",
+      en: "content",
+      ka: "კონტენტი",
+    },
     titlePart2Translations: { ru: "", en: "", ka: "" },
     descriptionTranslations: {
-      ru: "Контент, видеосъемка",
-      en: "Content, video production",
-      ka: "კონტენტი, ვიდეო გადაღება",
+      ru: "Визуал, который выделяет ваш бренд. Мы создаём выразительный контент и видео для социальных сетей.",
+      en: "Visuals that make your brand stand out. We create distinctive content and videos for social media.",
+      ka: "ვიზუალი, რომელიც თქვენს ბრენდს გამოარჩევს. ჩვენ ვქმნით გამორჩეულ კონტენტსა და ვიდეოებს სოციალური ქსელებისთვის.",
     },
   },
   "hero-animation": {

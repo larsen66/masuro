@@ -30,10 +30,11 @@ const en = {
   "hero.animation.description":
     "Motion that captures attention. Our animators create unique 2D animation for your brand.",
   "hero.graphics.badge": "Content",
-  "hero.graphics.before": "SMM",
-  "hero.graphics.highlight": "",
+  "hero.graphics.before": "Creative",
+  "hero.graphics.highlight": "content",
   "hero.graphics.after": "",
-  "hero.graphics.description": "Content, video production",
+  "hero.graphics.description":
+    "Visuals that make your brand stand out. We create distinctive content and videos for social media.",
   "hero.image": "Masuro neon sign",
   "hero.hoverImage": "Masuro neon sign on hover",
   "portfolio.heading": "Our projects",
@@ -107,10 +108,11 @@ const ru: Messages = {
   "hero.animation.description":
     "Движение, которое привлекает внимание. Наши аниматоры создают уникальную 2D-анимацию для вашего бренда.",
   "hero.graphics.badge": "Контент",
-  "hero.graphics.before": "SMM",
-  "hero.graphics.highlight": "",
+  "hero.graphics.before": "Креативный",
+  "hero.graphics.highlight": "контент",
   "hero.graphics.after": "",
-  "hero.graphics.description": "Контент, видеосъемка",
+  "hero.graphics.description":
+    "Визуал, который выделяет ваш бренд. Мы создаём выразительный контент и видео для социальных сетей.",
   "hero.image": "Неоновая вывеска Masuro",
   "hero.hoverImage": "Неоновая вывеска Masuro при наведении",
   "portfolio.heading": "Наши проекты",
@@ -181,10 +183,11 @@ const ka: Messages = {
   "hero.animation.description":
     "მოძრაობა, რომელიც იპყრობს ყურადღებას. ჩვენი ანიმატორები ქმნიან უნიკალურ 2D ანიმაციებს თქვენი ბრენდისთვის.",
   "hero.graphics.badge": "კონტენტი",
-  "hero.graphics.before": "სმმ",
-  "hero.graphics.highlight": "",
+  "hero.graphics.before": "კრეატიული",
+  "hero.graphics.highlight": "კონტენტი",
   "hero.graphics.after": "",
-  "hero.graphics.description": "კონტენტი, ვიდეო გადაღება",
+  "hero.graphics.description":
+    "ვიზუალი, რომელიც თქვენს ბრენდს გამოარჩევს. ჩვენ ვქმნით გამორჩეულ კონტენტსა და ვიდეოებს სოციალური ქსელებისთვის.",
   "hero.image": "Masuro-ს ნეონის აბრა",
   "hero.hoverImage": "Masuro-ს ნეონის აბრა კურსორის მიტანისას",
   "portfolio.heading": "ჩვენი პროექტები",
