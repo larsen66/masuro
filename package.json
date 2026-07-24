@@ -6,8 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "tsx --test src/**/*.test.ts",
     "lint": "eslint",
-    "seed": "tsx scripts/seed-sanity.ts"
+    "seed": "tsx scripts/seed-sanity.ts",
+    "migrate:i18n:dry": "sanity exec scripts/migrate-sanity-i18n.ts --with-user-token",
+    "migrate:i18n": "sanity exec scripts/migrate-sanity-i18n.ts --with-user-token -- --apply",
+    "migrate:i18n:drafts": "sanity exec scripts/migrate-sanity-i18n.ts --with-user-token -- --apply --include-drafts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

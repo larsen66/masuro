@@ -6,26 +6,38 @@ export const category = defineType({
   type: "document",
   fields: [
     defineField({
-      name: "title",
-      title: "Title",
-      type: "string",
+      name: "titleTranslations",
+      title: "Title translations",
+      type: "localizedString",
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "title",
+      title: "Legacy title",
+      type: "string",
+      hidden: true,
     }),
     defineField({
       name: "slug",
       title: "Slug",
       type: "slug",
       options: {
-        source: "title",
+        source: "titleTranslations.en",
         maxLength: 96,
       },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "descriptionTranslations",
+      title: "Description translations",
+      type: "localizedText",
+    }),
+    defineField({
       name: "description",
-      title: "Description",
+      title: "Legacy description",
       type: "text",
       rows: 2,
+      hidden: true,
     }),
     defineField({
       name: "color",
@@ -42,12 +54,19 @@ export const category = defineType({
   ],
   preview: {
     select: {
-      title: "title",
+      titleEn: "titleTranslations.en",
+      titleKa: "titleTranslations.ka",
+      legacyTitle: "title",
       media: "icon",
+    },
+    prepare({ titleEn, titleKa, legacyTitle, media }) {
+      return {
+        title: titleEn || titleKa || legacyTitle,
+        media,
+      };
     },
   },
 });
-
 
 
 

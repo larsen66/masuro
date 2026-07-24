@@ -2,31 +2,25 @@
 
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
+import { useLocale } from "@/i18n/LocaleProvider";
 
 interface CustomCursorProps {
   cursorIcon: string | null;
 }
 
 export function CustomCursor({ cursorIcon }: CustomCursorProps) {
+  const { t } = useLocale();
   const [position, setPosition] = useState({ x: -100, y: -100 });
   const [isVisible, setIsVisible] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
 
-  // Убеждаемся, что компонент монтирован только на клиенте
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isMounted) return;
-
     const handleMouseMove = (e: MouseEvent) => {
       // Используем requestAnimationFrame для плавности
       requestAnimationFrame(() => {
         setPosition({ x: e.clientX, y: e.clientY });
       });
-      if (!isVisible) setIsVisible(true);
+      setIsVisible(true);
     };
 
     const handleMouseLeave = () => {
@@ -46,10 +40,9 @@ export function CustomCursor({ cursorIcon }: CustomCursorProps) {
       document.documentElement.removeEventListener("mouseleave", handleMouseLeave);
       document.documentElement.removeEventListener("mouseenter", handleMouseEnter);
     };
-  }, [isVisible, isMounted]);
+  }, []);
 
-  // Не рендерим на сервере, чтобы избежать hydration mismatch
-  if (!isMounted || !cursorIcon) return null;
+  if (!cursorIcon) return null;
 
   return (
     <div
@@ -66,7 +59,7 @@ export function CustomCursor({ cursorIcon }: CustomCursorProps) {
     >
       <Image
         src={cursorIcon}
-        alt="Cursor"
+        alt={t("cursor")}
         width={32}
         height={32}
         className="w-8 h-8"

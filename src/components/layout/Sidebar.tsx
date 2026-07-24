@@ -3,28 +3,30 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/i18n/LocaleProvider";
+import type { MessageKey } from "@/i18n/messages";
 
 interface ToolItem {
   id: string;
-  label: string;
+  labelKey: MessageKey;
   icon: string;
 }
 
 const tools: ToolItem[] = [
-  { id: "selection", label: "Selection Tool", icon: "/cursors/selection.svg" },
-  { id: "direct-selection", label: "Direct Selection", icon: "/cursors/direct-selection.svg" },
-  { id: "pen", label: "Pen Tool", icon: "/cursors/pen.svg" },
-  { id: "type", label: "Type Tool", icon: "/cursors/type.svg" },
-  { id: "line", label: "Line Segment Tool", icon: "/cursors/line.svg" },
-  { id: "rectangle", label: "Rectangle Tool", icon: "/cursors/rectangle.svg" },
-  { id: "brush", label: "Brush Tool", icon: "/cursors/brush.svg" },
-  { id: "eraser", label: "Eraser Tool", icon: "/cursors/eraser.svg" },
-  { id: "gradient", label: "Gradient Tool", icon: "/cursors/gradient.svg" },
-  { id: "eyedropper", label: "Eyedropper Tool", icon: "/cursors/eyedropper.svg" },
-  { id: "transform", label: "Free Transform", icon: "/cursors/transform.svg" },
-  { id: "scale", label: "Scale Tool", icon: "/cursors/scale.svg" },
-  { id: "zoom", label: "Zoom Tool", icon: "/cursors/zoom.svg" },
-  { id: "artboard", label: "Artboard Tool", icon: "/cursors/artboard.svg" },
+  { id: "selection", labelKey: "tool.selection", icon: "/cursors/selection.svg" },
+  { id: "direct-selection", labelKey: "tool.directSelection", icon: "/cursors/direct-selection.svg" },
+  { id: "pen", labelKey: "tool.pen", icon: "/cursors/pen.svg" },
+  { id: "type", labelKey: "tool.type", icon: "/cursors/type.svg" },
+  { id: "line", labelKey: "tool.line", icon: "/cursors/line.svg" },
+  { id: "rectangle", labelKey: "tool.rectangle", icon: "/cursors/rectangle.svg" },
+  { id: "brush", labelKey: "tool.brush", icon: "/cursors/brush.svg" },
+  { id: "eraser", labelKey: "tool.eraser", icon: "/cursors/eraser.svg" },
+  { id: "gradient", labelKey: "tool.gradient", icon: "/cursors/gradient.svg" },
+  { id: "eyedropper", labelKey: "tool.eyedropper", icon: "/cursors/eyedropper.svg" },
+  { id: "transform", labelKey: "tool.transform", icon: "/cursors/transform.svg" },
+  { id: "scale", labelKey: "tool.scale", icon: "/cursors/scale.svg" },
+  { id: "zoom", labelKey: "tool.zoom", icon: "/cursors/zoom.svg" },
+  { id: "artboard", labelKey: "tool.artboard", icon: "/cursors/artboard.svg" },
 ];
 
 interface SidebarProps {
@@ -32,36 +34,18 @@ interface SidebarProps {
   initialCursor?: string;
 }
 
-const CURSOR_STORAGE_KEY = "masuro_selected_cursor";
-
 export function Sidebar({ onToolChange, initialCursor }: SidebarProps) {
+  const { t } = useLocale();
   // Определяем активный инструмент на основе сохраненного курсора
   const getActiveToolFromCursor = (cursorPath: string): string => {
     const tool = tools.find(t => t.icon === cursorPath);
     return tool?.id || "selection";
   };
 
-  const [activeTool, setActiveTool] = useState<string>(() => {
-    if (initialCursor) {
-      return getActiveToolFromCursor(initialCursor);
-    }
-    // Пытаемся восстановить из localStorage
-    if (typeof window !== "undefined") {
-      const savedCursor = localStorage.getItem(CURSOR_STORAGE_KEY);
-      if (savedCursor) {
-        return getActiveToolFromCursor(savedCursor);
-      }
-    }
-    return "selection";
-  });
-
-  // Синхронизируем активный инструмент при изменении initialCursor
-  useEffect(() => {
-    if (initialCursor) {
-      const toolId = getActiveToolFromCursor(initialCursor);
-      setActiveTool(toolId);
-    }
-  }, [initialCursor]); // getActiveToolFromCursor стабильна, так как tools не изменяется
+  const [selectedTool, setSelectedTool] = useState("selection");
+  const activeTool = initialCursor
+    ? getActiveToolFromCursor(initialCursor)
+    : selectedTool;
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -83,7 +67,7 @@ export function Sidebar({ onToolChange, initialCursor }: SidebarProps) {
   }, [lastScrollY]);
 
   const handleToolClick = (tool: ToolItem) => {
-    setActiveTool(tool.id);
+    setSelectedTool(tool.id);
     onToolChange?.(tool.icon);
   };
 
@@ -114,11 +98,12 @@ export function Sidebar({ onToolChange, initialCursor }: SidebarProps) {
               : "hover:bg-primary/10",
             index === 0 && "mb-1"
           )}
-          title={tool.label}
+          title={t(tool.labelKey)}
+          aria-label={t(tool.labelKey)}
         >
           <Image
             src={tool.icon}
-            alt={tool.label}
+            alt=""
             width={20}
             height={20}
             className="w-5 h-5"
