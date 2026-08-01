@@ -21,6 +21,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: settings?.seoTitle || translate(locale, "metadata.title"),
     description: settings?.seoDescription || translate(locale, "metadata.description"),
+    authors: [{ name: "Dali Agents", url: "https://daliagents.com" }],
+    creator: "Dali Agents",
+    publisher: "Masuro",
+    other: {
+      "site:created_by": "https://daliagents.com",
+    },
   };
 }
 

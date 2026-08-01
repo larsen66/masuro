@@ -5,6 +5,8 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { DottedPattern } from "@/components/DottedPattern";
 import { CustomCursor } from "@/components/CustomCursor";
+import { useLocale } from "@/i18n/LocaleProvider";
+import { translate } from "@/i18n/messages";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -23,6 +25,7 @@ function getIsDesktop() {
 }
 
 export function MainLayout({ children, activeNav = "/" }: MainLayoutProps) {
+  const { locale } = useLocale();
   const [cursorIcon, setCursorIcon] = useState<string>("/cursors/selection.svg");
   const isDesktop = useSyncExternalStore(
     subscribeToViewport,
@@ -72,6 +75,21 @@ export function MainLayout({ children, activeNav = "/" }: MainLayoutProps) {
       <main className="relative z-10 pt-16 md:pt-20 px-4 md:pl-20 md:pr-6 pb-6">
         {children}
       </main>
+
+      <footer className="relative z-10 px-4 md:pl-20 md:pr-6 pb-8 pt-2">
+        <p className="text-xs text-muted-foreground/80">
+          {translate(locale, "credit.siteBy")}{" "}
+          <a
+            href="https://daliagents.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-2 hover:underline"
+          >
+            Dali Agents
+          </a>
+          {" · daliagents.com"}
+        </p>
+      </footer>
     </div>
   );
 }

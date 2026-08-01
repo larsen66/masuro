@@ -73,6 +73,7 @@ const en = {
   "tool.scale": "Scale Tool",
   "tool.zoom": "Zoom Tool",
   "tool.artboard": "Artboard Tool",
+  "credit.siteBy": "Site by",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -151,6 +152,7 @@ const ru: Messages = {
   "tool.scale": "Масштаб",
   "tool.zoom": "Лупа",
   "tool.artboard": "Монтажная область",
+  "credit.siteBy": "Сайт сделали",
 };
 
 const ka: Messages = {
@@ -226,6 +228,7 @@ const ka: Messages = {
   "tool.scale": "მასშტაბი",
   "tool.zoom": "მასშტაბირება",
   "tool.artboard": "სამუშაო არე",
+  "credit.siteBy": "საიტი შექმნა",
 };
 
 export const messages: Record<Locale, Messages> = { ru, en, ka };
