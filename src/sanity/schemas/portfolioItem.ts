@@ -6,17 +6,23 @@ export const portfolioItem = defineType({
   type: "document",
   fields: [
     defineField({
-      name: "title",
-      title: "Title",
-      type: "string",
+      name: "titleTranslations",
+      title: "Title translations",
+      type: "localizedString",
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "title",
+      title: "Legacy title",
+      type: "string",
+      hidden: true,
     }),
     defineField({
       name: "slug",
       title: "Slug",
       type: "slug",
       options: {
-        source: "title",
+        source: "titleTranslations.en",
         maxLength: 96,
       },
       validation: (Rule) => Rule.required(),
@@ -71,10 +77,16 @@ export const portfolioItem = defineType({
       description: "Optional: Upload video file directly",
     }),
     defineField({
+      name: "descriptionTranslations",
+      title: "Description translations",
+      type: "localizedText",
+    }),
+    defineField({
       name: "description",
-      title: "Description",
+      title: "Legacy description",
       type: "text",
       rows: 3,
+      hidden: true,
     }),
     defineField({
       name: "client",
@@ -116,14 +128,31 @@ export const portfolioItem = defineType({
   ],
   preview: {
     select: {
-      title: "title",
-      category: "category.title",
+      titleEn: "titleTranslations.en",
+      titleKa: "titleTranslations.ka",
+      legacyTitle: "title",
+      categoryEn: "category.titleTranslations.en",
+      categoryKa: "category.titleTranslations.ka",
+      legacyCategory: "category.title",
       media: "image",
       images: "images",
       videoUrl: "videoUrl",
       videoFile: "videoFile",
     },
-    prepare({ title, category, media, images, videoUrl, videoFile }) {
+    prepare({
+      titleEn,
+      titleKa,
+      legacyTitle,
+      categoryEn,
+      categoryKa,
+      legacyCategory,
+      media,
+      images,
+      videoUrl,
+      videoFile,
+    }) {
+      const title = titleEn || titleKa || legacyTitle;
+      const category = categoryEn || categoryKa || legacyCategory;
       const hasVideo = !!videoUrl || !!videoFile;
       const imageCount = images?.length || 0;
       const subtitle = [
@@ -142,7 +171,6 @@ export const portfolioItem = defineType({
     },
   },
 });
-
 
 
 

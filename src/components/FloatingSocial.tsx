@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "@/i18n/LocaleProvider";
 
 interface FloatingSocialProps {
   whatsappNumber?: string;
@@ -93,6 +94,7 @@ export function FloatingSocial({
   telegramUrl,
   phoneNumber,
 }: FloatingSocialProps) {
+  const { t } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
 
   const data: Record<string, string | undefined> = {
@@ -117,7 +119,7 @@ export function FloatingSocial({
         onClick={() => setIsOpen(!isOpen)}
         className="w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
         style={{ backgroundColor: "#a3195b" }}
-        aria-label={isOpen ? "Close social links" : "Open social links"}
+        aria-label={isOpen ? t("social.close") : t("social.open")}
       >
         <svg
           viewBox="0 0 24 24"
@@ -155,7 +157,7 @@ export function FloatingSocial({
               transitionDelay: isOpen ? `${index * 60}ms` : "0ms",
               pointerEvents: isOpen ? "auto" : "none",
             }}
-            aria-label={item.label}
+            aria-label={item.key === "phone" ? t("social.phone") : item.label}
           >
             <Icon />
           </a>

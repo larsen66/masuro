@@ -1,6 +1,14 @@
 "use client";
 
-import { ReactNode, useState, useRef, useCallback, useEffect } from "react";
+import {
+  ReactNode,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useSyncExternalStore,
+} from "react";
+import { useLocale } from "@/i18n/LocaleProvider";
 
 interface HeroSectionProps {
   badge?: string;
@@ -9,14 +17,35 @@ interface HeroSectionProps {
   showSvgHero?: boolean;
 }
 
+function subscribeToViewport(onStoreChange: () => void) {
+  window.addEventListener("resize", onStoreChange);
+  return () => window.removeEventListener("resize", onStoreChange);
+}
+
+function getIsDesktop() {
+  return window.innerWidth >= 768;
+}
+
 export function HeroSection({
-  badge = "ლოკალიზაცია • დუბლაჟი • გრაფიკა",
-  title = <>პროფესიონალური<span className="text-primary"> ვიდეო </span>ლოკალიზაცია</>,
-  description = "ჩვენ ვქმნით მაღალი ხარისხის ვიდეო კონტენტს თქვენი ბრენდისთვის. დუბლაჟი, სუბტიტრები, გრაფიკა და ანიმაცია — ყველაფერი ერთ სივრცეში.",
+  title,
+  description,
   showSvgHero = false
 }: HeroSectionProps) {
+  const { t } = useLocale();
+  const resolvedTitle = title ?? (
+    <>
+      {t("hero.localization.before")}
+      <span className="text-primary"> {t("hero.localization.highlight")} </span>
+      {t("hero.localization.after")}
+    </>
+  );
+  const resolvedDescription = description ?? t("hero.localization.description");
   const [isHovered, setIsHovered] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
+  const isDesktop = useSyncExternalStore(
+    subscribeToViewport,
+    getIsDesktop,
+    () => false
+  );
   const hero1Ref = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const maskElementRef = useRef<HTMLDivElement>(null);
@@ -25,11 +54,6 @@ export function HeroSection({
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const throttleDelay = 16; // ~60fps
   const radius = 210;
-
-  // Detect desktop after mount — default false so SSR never includes hero-2
-  useEffect(() => {
-    setIsDesktop(window.innerWidth >= 768);
-  }, []);
 
   // Ensure hero-1 image is visible when component mounts (for cached images)
   useEffect(() => {
@@ -129,10 +153,12 @@ export function HeroSection({
             />
 
             {/* Base hero image - loaded with priority */}
+            {/* Native img is intentional because the reveal mask needs exact viewport sizing. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               ref={hero1Ref}
               src="/hero-1.webp"
-              alt="Hero"
+              alt={t("hero.image")}
               className="absolute"
               loading="eager"
               decoding="async"
@@ -209,9 +235,11 @@ export function HeroSection({
                   WebkitMaskPosition: '0 0',
                 }}
               >
+                {/* Native img keeps both mask layers pixel-aligned. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/hero-2.webp"
-                  alt="Hero Hover"
+                  alt={t("hero.hoverImage")}
                   loading="lazy"
                   decoding="async"
                   fetchPriority="low"
@@ -244,7 +272,7 @@ export function HeroSection({
           className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 md:mb-6 leading-tight animate-fade-in-up"
           style={{ animationDelay: "0ms" }}
         >
-          {title}
+          {resolvedTitle}
         </h1>
 
         {/* Description - animated */}
@@ -252,7 +280,7 @@ export function HeroSection({
           className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2 animate-fade-in-up"
           style={{ animationDelay: "100ms" }}
         >
-          {description}
+          {resolvedDescription}
         </p>
       </div>
     </section>

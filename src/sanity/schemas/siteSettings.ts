@@ -13,10 +13,16 @@ export const siteSettings = defineType({
   ],
   fields: [
     defineField({
-      name: "siteName",
-      title: "Site Name",
-      type: "string",
+      name: "siteNameTranslations",
+      title: "Site name translations",
+      type: "localizedString",
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "siteName",
+      title: "Legacy site name",
+      type: "string",
+      hidden: true,
     }),
     defineField({
       name: "logo",
@@ -27,17 +33,29 @@ export const siteSettings = defineType({
       },
     }),
     defineField({
+      name: "seoTitleTranslations",
+      title: "SEO title translations",
+      type: "localizedString",
+    }),
+    defineField({
       name: "seoTitle",
-      title: "SEO Title",
+      title: "Legacy SEO title",
       type: "string",
       description: "Title for search engines",
+      hidden: true,
+    }),
+    defineField({
+      name: "seoDescriptionTranslations",
+      title: "SEO description translations",
+      type: "localizedText",
     }),
     defineField({
       name: "seoDescription",
-      title: "SEO Description",
+      title: "Legacy SEO description",
       type: "text",
       rows: 2,
       description: "Description for search engines",
+      hidden: true,
     }),
     defineField({
       name: "contactEmail",
@@ -86,7 +104,6 @@ export const siteSettings = defineType({
     },
   },
 });
-
 
 
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { defineConfig } from "sanity";
-import { structureTool } from "sanity/structure";
+import { structureTool, type StructureBuilder } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
 import { schemaTypes } from "./src/sanity/schemas";
 
@@ -9,7 +9,7 @@ const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET!;
 
 // Custom structure for the Studio
-const structure = (S: any) =>
+const structure = (S: StructureBuilder) =>
   S.list()
     .title("Content")
     .items([

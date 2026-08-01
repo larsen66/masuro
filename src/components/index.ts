@@ -2,7 +2,6 @@ export { Logo } from "./Logo";
 export { NavItem } from "./NavItem";
 export { LanguageSwitcher } from "./LanguageSwitcher";
 export { PortfolioCard } from "./PortfolioCard";
-export { PortfolioGrid } from "./PortfolioGrid";
 export { PortfolioGridClient } from "./PortfolioGridClient";
 export { PortfolioGridServer } from "./PortfolioGridServer";
 export { DottedPattern } from "./DottedPattern";

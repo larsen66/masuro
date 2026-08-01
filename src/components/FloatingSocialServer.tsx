@@ -1,8 +1,10 @@
 import { getSiteSettings } from "@/sanity/lib";
 import { FloatingSocial } from "./FloatingSocial";
+import { getLocale } from "@/i18n/server";
 
 export async function FloatingSocialServer() {
-  const settings = await getSiteSettings();
+  const locale = await getLocale();
+  const settings = await getSiteSettings(locale);
 
   if (!settings) return null;
 

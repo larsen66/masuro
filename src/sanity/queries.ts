@@ -2,11 +2,18 @@ import { groq } from "next-sanity";
 
 // Get all portfolio items
 export const portfolioItemsQuery = groq`
-  *[_type == "portfolioItem"] | order(order asc) {
+  *[_type == "portfolioItem" && (
+    defined(image.asset->._id) ||
+    count(coalesce(images[defined(asset->._id)], [])) > 0 ||
+    length(coalesce(videoUrl, "")) > 0 ||
+    defined(videoFile.asset->._id)
+  )] | order(order asc) {
     _id,
     title,
+    titleTranslations,
     "slug": slug.current,
     "category": category->title,
+    "categoryTranslations": category->titleTranslations,
     "categorySlug": category->slug.current,
     image,
     images,
@@ -20,6 +27,7 @@ export const portfolioItemsQuery = groq`
       }
     },
     description,
+    descriptionTranslations,
     client,
     year,
     featured
@@ -28,11 +36,21 @@ export const portfolioItemsQuery = groq`
 
 // Get portfolio items by category slug
 export const portfolioItemsByCategoryQuery = groq`
-  *[_type == "portfolioItem" && category->slug.current == $categorySlug] | order(order asc) {
+  *[_type == "portfolioItem" &&
+    category->slug.current == $categorySlug &&
+    (
+      defined(image.asset->._id) ||
+      count(coalesce(images[defined(asset->._id)], [])) > 0 ||
+      length(coalesce(videoUrl, "")) > 0 ||
+      defined(videoFile.asset->._id)
+    )
+  ] | order(order asc) {
     _id,
     title,
+    titleTranslations,
     "slug": slug.current,
     "category": category->title,
+    "categoryTranslations": category->titleTranslations,
     "categorySlug": category->slug.current,
     image,
     images,
@@ -46,6 +64,7 @@ export const portfolioItemsByCategoryQuery = groq`
       }
     },
     description,
+    descriptionTranslations,
     client,
     year,
     featured
@@ -54,11 +73,21 @@ export const portfolioItemsByCategoryQuery = groq`
 
 // Get featured portfolio items
 export const featuredPortfolioItemsQuery = groq`
-  *[_type == "portfolioItem" && featured == true] | order(order asc) {
+  *[_type == "portfolioItem" &&
+    featured == true &&
+    (
+      defined(image.asset->._id) ||
+      count(coalesce(images[defined(asset->._id)], [])) > 0 ||
+      length(coalesce(videoUrl, "")) > 0 ||
+      defined(videoFile.asset->._id)
+    )
+  ] | order(order asc) {
     _id,
     title,
+    titleTranslations,
     "slug": slug.current,
     "category": category->title,
+    "categoryTranslations": category->titleTranslations,
     "categorySlug": category->slug.current,
     image,
     images,
@@ -72,6 +101,7 @@ export const featuredPortfolioItemsQuery = groq`
       }
     },
     description,
+    descriptionTranslations,
     client,
     year
   }
@@ -82,8 +112,10 @@ export const categoriesQuery = groq`
   *[_type == "category"] | order(title asc) {
     _id,
     title,
+    titleTranslations,
     "slug": slug.current,
     description,
+    descriptionTranslations,
     color
   }
 `;
@@ -94,10 +126,15 @@ export const heroSectionQuery = groq`
     _id,
     page,
     badge,
+    badgeTranslations,
     titlePart1,
+    titlePart1Translations,
     titleHighlight,
+    titleHighlightTranslations,
     titlePart2,
+    titlePart2Translations,
     description,
+    descriptionTranslations,
     backgroundImage
   }
 `;
@@ -107,9 +144,12 @@ export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0] {
     _id,
     siteName,
+    siteNameTranslations,
     logo,
     seoTitle,
+    seoTitleTranslations,
     seoDescription,
+    seoDescriptionTranslations,
     contactEmail,
     whatsappNumber,
     instagramUrl,
@@ -118,6 +158,3 @@ export const siteSettingsQuery = groq`
     phoneNumber
   }
 `;
-
-
-

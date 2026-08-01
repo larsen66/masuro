@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { DottedPattern } from "@/components/DottedPattern";
 import { CustomCursor } from "@/components/CustomCursor";
+import { useLocale } from "@/i18n/LocaleProvider";
+import { translate } from "@/i18n/messages";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -13,46 +15,44 @@ interface MainLayoutProps {
 
 const CURSOR_STORAGE_KEY = "masuro_selected_cursor";
 
+function subscribeToViewport(onStoreChange: () => void) {
+  window.addEventListener("resize", onStoreChange);
+  return () => window.removeEventListener("resize", onStoreChange);
+}
+
+function getIsDesktop() {
+  return window.innerWidth >= 768;
+}
+
 export function MainLayout({ children, activeNav = "/" }: MainLayoutProps) {
+  const { locale } = useLocale();
   const [cursorIcon, setCursorIcon] = useState<string>("/cursors/selection.svg");
-  const [isMobile, setIsMobile] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const isDesktop = useSyncExternalStore(
+    subscribeToViewport,
+    getIsDesktop,
+    () => false
+  );
 
-  // Убеждаемся, что компонент монтирован только на клиенте
   useEffect(() => {
-    setIsMounted(true);
-    
-    // Восстанавливаем курсор из localStorage при загрузке
     const savedCursor = localStorage.getItem(CURSOR_STORAGE_KEY);
-    if (savedCursor) {
-      setCursorIcon(savedCursor);
-    }
+    if (!savedCursor) return;
 
-    // Проверяем размер экрана
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    const frameId = requestAnimationFrame(() => setCursorIcon(savedCursor));
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
-  // Сохраняем курсор в localStorage при изменении
   const handleCursorChange = (iconPath: string) => {
     setCursorIcon(iconPath);
-    if (isMounted) {
-      localStorage.setItem(CURSOR_STORAGE_KEY, iconPath);
-    }
+    localStorage.setItem(CURSOR_STORAGE_KEY, iconPath);
   };
 
   return (
     <div 
-      className={`min-h-screen bg-background relative overflow-x-hidden ${isMounted && !isMobile ? "cursor-none" : ""}`}
+      className={`min-h-screen bg-background relative overflow-x-hidden ${isDesktop ? "cursor-none" : ""}`}
       suppressHydrationWarning
     >
       {/* Custom cursor - only on desktop */}
-      {isMounted && !isMobile && <CustomCursor cursorIcon={cursorIcon} />}
+      {isDesktop && <CustomCursor cursorIcon={cursorIcon} />}
       
       {/* Grid background pattern */}
       <div 
@@ -75,6 +75,21 @@ export function MainLayout({ children, activeNav = "/" }: MainLayoutProps) {
       <main className="relative z-10 pt-16 md:pt-20 px-4 md:pl-20 md:pr-6 pb-6">
         {children}
       </main>
+
+      <footer className="relative z-10 px-4 md:pl-20 md:pr-6 pb-8 pt-2">
+        <p className="text-xs text-muted-foreground/80">
+          {translate(locale, "credit.siteBy")}{" "}
+          <a
+            href="https://daliagents.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-2 hover:underline"
+          >
+            Dali Agents
+          </a>
+          {" · daliagents.com"}
+        </p>
+      </footer>
     </div>
   );
 }

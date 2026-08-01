@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DefaultLoader } from "./DefaultLoader";
+import { useLocale } from "@/i18n/LocaleProvider";
 
 // Lazy load VideoPreview to improve initial page load
 const VideoPreview = lazy(() => import("./VideoPreview").then(mod => ({ default: mod.VideoPreview })));
@@ -28,17 +29,27 @@ export function PortfolioCard({
   videoUrl,
   description 
 }: PortfolioCardProps) {
+  const { t } = useLocale();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // Use imageUrls array if provided, otherwise fallback to single imageUrl
-  const baseImages = imageUrls && imageUrls.length > 0 ? imageUrls : [imageUrl];
+  const baseImages = useMemo(
+    () => (imageUrls && imageUrls.length > 0 ? imageUrls : [imageUrl]),
+    [imageUrl, imageUrls]
+  );
+  const hasRealImages = useMemo(
+    () =>
+      baseImages.some(
+        (img) => img && img !== "https://picsum.photos/seed/default/600/340"
+      ),
+    [baseImages]
+  );
   
   // Compute final images array - include video thumbnail if available and no real images
   const images = useMemo(() => {
-    const hasRealImages = baseImages.some(img => img && img !== "https://picsum.photos/seed/default/600/340");
-    
     if (videoThumbnail && !hasRealImages) {
       return [videoThumbnail];
     }
@@ -49,12 +60,10 @@ export function PortfolioCard({
     }
     
     return baseImages.filter(img => img);
-  }, [baseImages, videoThumbnail]);
+  }, [baseImages, hasRealImages, videoThumbnail]);
   
   // If no images and we have a video, try to extract thumbnail from video
   useEffect(() => {
-    const hasRealImages = baseImages.some(img => img && img !== "https://picsum.photos/seed/default/600/340");
-    
     if (!hasRealImages && videoUrl && !videoThumbnail) {
       // Check if it's a direct video file (not YouTube/Vimeo)
       const isDirectVideo = videoUrl && !videoUrl.includes('youtube.com') && !videoUrl.includes('youtu.be') && !videoUrl.includes('vimeo.com');
@@ -71,6 +80,7 @@ export function PortfolioCard({
               ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
               const thumbnail = canvas.toDataURL('image/jpeg', 0.8);
               setVideoThumbnail(thumbnail);
+              setCurrentImageIndex(0);
             }
           } catch (error) {
             console.error('Failed to extract video thumbnail:', error);
@@ -91,9 +101,8 @@ export function PortfolioCard({
         };
       }
     }
-  }, [baseImages, videoUrl, videoThumbnail]);
+  }, [hasRealImages, videoUrl, videoThumbnail]);
   
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
   
@@ -139,11 +148,6 @@ export function PortfolioCard({
     touchEndX.current = null;
   }, [images.length]);
   
-  // Reset image index when images change
-  useEffect(() => {
-    setCurrentImageIndex(0);
-  }, [images.length]);
-
   return (
     <>
       <div
@@ -162,7 +166,7 @@ export function PortfolioCard({
         }}
       >
         {/* Hidden video element for extracting thumbnail from direct video files */}
-        {videoUrl && !videoUrl.includes('youtube.com') && !videoUrl.includes('youtu.be') && !videoUrl.includes('vimeo.com') && (
+        {videoUrl && !hasRealImages && !videoUrl.includes('youtube.com') && !videoUrl.includes('youtu.be') && !videoUrl.includes('vimeo.com') && (
           <video
             ref={videoRef}
             src={videoUrl}
@@ -191,7 +195,7 @@ export function PortfolioCard({
               >
                 <Image
                   src={img}
-                  alt={`${title} - Image ${imgIndex + 1}`}
+                  alt={t("portfolio.image", { title, number: imgIndex + 1 })}
                   fill
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -209,14 +213,14 @@ export function PortfolioCard({
               <button
                 onClick={handlePrevious}
                 className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 text-white"
-                aria-label="Previous image"
+                aria-label={t("carousel.previous")}
               >
                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
               </button>
               <button
                 onClick={handleNext}
                 className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 text-white"
-                aria-label="Next image"
+                aria-label={t("carousel.next")}
               >
                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
               </button>
@@ -236,7 +240,7 @@ export function PortfolioCard({
                       ? "bg-primary w-4 md:w-6"
                       : "bg-white/50 hover:bg-white/70"
                   )}
-                  aria-label={`Go to image ${imgIndex + 1}`}
+                  aria-label={t("carousel.goTo", { number: imgIndex + 1 })}
                 />
               ))}
             </div>
@@ -245,7 +249,7 @@ export function PortfolioCard({
           {/* Video indicator badge */}
           {videoUrl && (
             <div className="absolute top-2 right-2 bg-primary/90 px-2 py-0.5 rounded text-xs text-white font-medium z-20">
-              VIDEO
+              {t("portfolio.video").toUpperCase()}
             </div>
           )}
           

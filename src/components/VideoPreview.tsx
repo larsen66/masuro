@@ -4,13 +4,20 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Play, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Play,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { DefaultLoader } from "./DefaultLoader";
+import { useLocale } from "@/i18n/LocaleProvider";
 
 interface VideoPreviewProps {
   isOpen: boolean;
@@ -45,18 +52,6 @@ function getVideoInfo(url: string): { type: "youtube" | "vimeo" | "other"; id: s
   return { type: "other", id: url };
 }
 
-// Get thumbnail URL for video
-function getVideoThumbnail(url: string): string | null {
-  const info = getVideoInfo(url);
-  if (!info) return null;
-  
-  if (info.type === "youtube") {
-    return `https://img.youtube.com/vi/${info.id}/maxresdefault.jpg`;
-  }
-  
-  return null;
-}
-
 export function VideoPreview({
   isOpen,
   onClose,
@@ -68,6 +63,7 @@ export function VideoPreview({
   description,
   autoPlay = false,
 }: VideoPreviewProps) {
+  const { t } = useLocale();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   // Use imageUrls array if provided, otherwise fallback to single imageUrl
@@ -79,23 +75,22 @@ export function VideoPreview({
 
   // Auto-play video when dialog opens
   useEffect(() => {
-    if (isOpen && autoPlay && videoUrl) {
+    if (!isOpen || !autoPlay || !videoUrl) return;
+
+    const playTimer = window.setTimeout(() => {
       setIsLoading(true);
       setIsPlaying(true);
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
-    }
-  }, [isOpen, autoPlay, videoUrl]);
+    }, 0);
 
-  // Reset playing state and image index when dialog closes
-  useEffect(() => {
-    if (!isOpen) {
-      setIsPlaying(false);
+    const loadingTimer = window.setTimeout(() => {
       setIsLoading(false);
-      setCurrentImageIndex(0);
-    }
-  }, [isOpen]);
+    }, 1000);
+
+    return () => {
+      window.clearTimeout(playTimer);
+      window.clearTimeout(loadingTimer);
+    };
+  }, [isOpen, autoPlay, videoUrl]);
   
   const handlePrevious = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -150,6 +145,15 @@ export function VideoPreview({
     }
   };
 
+  const handleDialogOpenChange = (open: boolean) => {
+    if (open) return;
+
+    setIsPlaying(false);
+    setIsLoading(false);
+    setCurrentImageIndex(0);
+    onClose();
+  };
+
   const renderVideoPlayer = () => {
     if (!videoUrl || !isPlaying) return null;
 
@@ -192,16 +196,20 @@ export function VideoPreview({
           console.error("Video playback error:", e);
         }}
       >
-        Your browser does not support the video tag.
+        {t("video.unsupported")}
       </video>
     );
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] max-h-[90vh] bg-card border-primary/30 p-0 overflow-hidden">
-        <DialogHeader className="px-3 pt-3 pb-0">
-          <DialogTitle className="flex items-center justify-between">
+    <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
+      <DialogContent
+        closeLabel={t("dialog.close")}
+        className="w-[95vw] max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] max-h-[90vh] gap-0 bg-card border-primary/30 p-0 overflow-hidden"
+        style={{ display: "flex", flexDirection: "column" }}
+      >
+        <DialogHeader className="px-3 pt-3 pb-0 shrink-0">
+          <DialogTitle className="flex items-center justify-between gap-4 pr-8">
             <div>
               <span className="text-primary text-sm font-normal">{category}</span>
               <h2 className="text-xl font-semibold text-foreground">{title}</h2>
@@ -213,6 +221,7 @@ export function VideoPreview({
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
                 onClick={(e) => e.stopPropagation()}
+                aria-label={t("video.openTab")}
               >
                 <ExternalLink className="w-5 h-5" />
               </a>
@@ -222,7 +231,7 @@ export function VideoPreview({
         
         {/* Video player area */}
         <div 
-          className="relative aspect-video bg-black m-2 rounded-lg overflow-hidden group"
+          className="relative aspect-video min-h-0 shrink bg-black m-2 rounded-lg overflow-hidden group"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -248,7 +257,7 @@ export function VideoPreview({
                   >
                     <Image
                       src={img}
-                      alt={`${title} - Image ${imgIndex + 1}`}
+                      alt={t("portfolio.image", { title, number: imgIndex + 1 })}
                       fill
                       className="object-cover"
                       sizes="(max-width: 1024px) 100vw, 900px"
@@ -264,14 +273,14 @@ export function VideoPreview({
                   <button
                     onClick={handlePrevious}
                     className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-opacity duration-300 text-white"
-                    aria-label="Previous image"
+                    aria-label={t("carousel.previous")}
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={handleNext}
                     className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-opacity duration-300 text-white"
-                    aria-label="Next image"
+                    aria-label={t("carousel.next")}
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
@@ -291,7 +300,7 @@ export function VideoPreview({
                           ? "bg-primary w-8"
                           : "bg-white/50 hover:bg-white/70"
                       )}
-                      aria-label={`Go to image ${imgIndex + 1}`}
+                      aria-label={t("carousel.goTo", { number: imgIndex + 1 })}
                     />
                   ))}
                 </div>
@@ -313,13 +322,25 @@ export function VideoPreview({
         </div>
         
         {/* Video info */}
-        <div className="px-3 pb-3 pt-0">
+        <div className="px-3 pb-3 pt-0 shrink-0">
           {description && (
-            <p className="text-sm text-muted-foreground mb-1">{description}</p>
+            <DialogDescription className="text-sm text-muted-foreground mb-1">
+              {description}
+            </DialogDescription>
           )}
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>{videoUrl ? (videoInfo?.type === "youtube" ? "YouTube" : videoInfo?.type === "vimeo" ? "Vimeo" : "Video") : "ფოტო"}</span>
-            {videoUrl && !isPlaying && <span className="text-primary">Click to play</span>}
+            <span>
+              {videoUrl
+                ? videoInfo?.type === "youtube"
+                  ? "YouTube"
+                  : videoInfo?.type === "vimeo"
+                    ? "Vimeo"
+                    : t("portfolio.video")
+                : t("portfolio.photo")}
+            </span>
+            {videoUrl && !isPlaying && (
+              <span className="text-primary">{t("portfolio.clickToPlay")}</span>
+            )}
           </div>
         </div>
       </DialogContent>

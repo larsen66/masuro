@@ -7,17 +7,44 @@ import {
   siteSettingsQuery,
 } from "./queries";
 import type { PortfolioItem, Category, HeroSection, SiteSettings } from "./types";
+import { resolveLocalizedValue } from "@/i18n/localized-value";
+import type { Locale } from "@/i18n/config";
 
 // Revalidate data every 5 minutes for better performance
 const REVALIDATE_TIME = 300;
 
-export async function getPortfolioItems(): Promise<PortfolioItem[]> {
+function localizePortfolioItem(item: PortfolioItem, locale: Locale): PortfolioItem {
+  return {
+    ...item,
+    title: resolveLocalizedValue(item.titleTranslations, locale, item.title),
+    category: resolveLocalizedValue(
+      item.categoryTranslations,
+      locale,
+      item.category
+    ),
+    description:
+      resolveLocalizedValue(item.descriptionTranslations, locale, item.description) || undefined,
+  };
+}
+
+function localizeCategory(category: Category, locale: Locale): Category {
+  return {
+    ...category,
+    title: resolveLocalizedValue(category.titleTranslations, locale, category.title),
+    description:
+      resolveLocalizedValue(category.descriptionTranslations, locale, category.description) ||
+      undefined,
+  };
+}
+
+export async function getPortfolioItems(locale: Locale): Promise<PortfolioItem[]> {
   try {
-    return await client.fetch(
+    const items = await client.fetch<PortfolioItem[]>(
       portfolioItemsQuery,
       {},
       { next: { revalidate: REVALIDATE_TIME } }
     );
+    return items.map((item) => localizePortfolioItem(item, locale));
   } catch {
     console.error("Failed to fetch portfolio items from Sanity");
     return [];
@@ -25,53 +52,90 @@ export async function getPortfolioItems(): Promise<PortfolioItem[]> {
 }
 
 export async function getPortfolioItemsByCategory(
-  categorySlug: string
+  categorySlug: string,
+  locale: Locale
 ): Promise<PortfolioItem[]> {
   try {
-    return await client.fetch(
+    const items = await client.fetch<PortfolioItem[]>(
       portfolioItemsByCategoryQuery,
       { categorySlug },
       { next: { revalidate: REVALIDATE_TIME } }
     );
+    return items.map((item) => localizePortfolioItem(item, locale));
   } catch {
     console.error("Failed to fetch portfolio items by category from Sanity");
     return [];
   }
 }
 
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories(locale: Locale): Promise<Category[]> {
   try {
-    return await client.fetch(
+    const categories = await client.fetch<Category[]>(
       categoriesQuery,
       {},
       { next: { revalidate: REVALIDATE_TIME } }
     );
+    return categories.map((category) => localizeCategory(category, locale));
   } catch {
     console.error("Failed to fetch categories from Sanity");
     return [];
   }
 }
 
-export async function getHeroSection(page: string): Promise<HeroSection | null> {
+export async function getHeroSection(page: string, locale: Locale): Promise<HeroSection | null> {
   try {
-    return await client.fetch(
+    const hero = await client.fetch<HeroSection | null>(
       heroSectionQuery,
       { page },
       { next: { revalidate: REVALIDATE_TIME } }
     );
+    if (!hero) return null;
+
+    return {
+      ...hero,
+      badge: resolveLocalizedValue(hero.badgeTranslations, locale, hero.badge) || undefined,
+      titlePart1:
+        resolveLocalizedValue(hero.titlePart1Translations, locale, hero.titlePart1) || undefined,
+      titleHighlight:
+        resolveLocalizedValue(hero.titleHighlightTranslations, locale, hero.titleHighlight) ||
+        undefined,
+      titlePart2:
+        resolveLocalizedValue(hero.titlePart2Translations, locale, hero.titlePart2) || undefined,
+      description:
+        resolveLocalizedValue(hero.descriptionTranslations, locale, hero.description) || undefined,
+    };
   } catch {
     console.error("Failed to fetch hero section from Sanity");
     return null;
   }
 }
 
-export async function getSiteSettings(): Promise<SiteSettings | null> {
+export async function getSiteSettings(locale: Locale): Promise<SiteSettings | null> {
   try {
-    return await client.fetch(
+    const settings = await client.fetch<SiteSettings | null>(
       siteSettingsQuery,
       {},
       { next: { revalidate: REVALIDATE_TIME } }
     );
+    if (!settings) return null;
+
+    return {
+      ...settings,
+      siteName: resolveLocalizedValue(
+        settings.siteNameTranslations,
+        locale,
+        settings.siteName
+      ),
+      seoTitle:
+        resolveLocalizedValue(settings.seoTitleTranslations, locale, settings.seoTitle) ||
+        undefined,
+      seoDescription:
+        resolveLocalizedValue(
+          settings.seoDescriptionTranslations,
+          locale,
+          settings.seoDescription
+        ) || undefined,
+    };
   } catch {
     console.error("Failed to fetch site settings from Sanity");
     return null;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useLocale } from "@/i18n/LocaleProvider";
 
 interface DefaultLoaderProps {
   /** Размер загрузчика: 'small' | 'medium' | 'large' | 'fullscreen' */
@@ -16,6 +17,7 @@ export function DefaultLoader({
   showBackground = false,
   className = ''
 }: DefaultLoaderProps) {
+  const { t } = useLocale();
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export function DefaultLoader({
     const playVideo = async () => {
       try {
         await video.play();
-      } catch (error) {
+      } catch {
         // Игнорируем ошибки автовоспроизведения
       }
     };
@@ -77,7 +79,7 @@ export function DefaultLoader({
       <div className={`${containerClasses} ${backgroundClasses} ${className}`}>
         <div
           className="w-6 h-6 rounded-full border-2 border-primary/40 border-t-primary animate-spin"
-          aria-label="Loading"
+          aria-label={t("loading")}
         />
       </div>
     );
@@ -105,7 +107,7 @@ export function DefaultLoader({
           autoPlay
         >
           <source src="/11.webm" type="video/webm" />
-          Ваш браузер не поддерживает видео.
+          {t("video.unsupported")}
         </video>
       </div>
     </div>

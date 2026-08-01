@@ -4,25 +4,26 @@ import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
 import { NavItem } from "@/components/NavItem";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLocale } from "@/i18n/LocaleProvider";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { label: "სულ", href: "/all" },
-  { label: "ლოკალიზაცია", href: "/localization" },
-  { label: "2D ანიმაცია", href: "/animation" },
-  { label: "გრაფიკა", href: "/graphics" },
-  { label: "Voice", href: "/voice" },
-];
 
 interface HeaderProps {
   activeNav?: string;
 }
 
 export function Header({ activeNav = "/" }: HeaderProps) {
+  const { t } = useLocale();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navItems = [
+    { label: t("nav.all"), href: "/all" },
+    { label: t("nav.localization"), href: "/localization" },
+    { label: t("nav.animation"), href: "/animation" },
+    { label: t("nav.graphics"), href: "/graphics" },
+    { label: t("nav.voice"), href: "/voice" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,8 +77,11 @@ export function Header({ activeNav = "/" }: HeaderProps) {
           
           {/* Mobile menu button */}
           <button
+            type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 text-foreground/70 hover:text-foreground transition-colors"
+            aria-label={isMobileMenuOpen ? t("menu.close") : t("menu.open")}
+            aria-expanded={isMobileMenuOpen}
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>

@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Suspense } from "react";
 import { FloatingSocialServer } from "@/components/FloatingSocialServer";
+import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { translate } from "@/i18n/messages";
+import { getLocale } from "@/i18n/server";
+import { getSiteSettings } from "@/sanity/lib";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,18 +14,31 @@ const geistSans = Geist({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Masuro - Localization & Video Production",
-  description: "Professional video localization and production services",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const settings = await getSiteSettings(locale);
 
-export default function RootLayout({
+  return {
+    title: settings?.seoTitle || translate(locale, "metadata.title"),
+    description: settings?.seoDescription || translate(locale, "metadata.description"),
+    authors: [{ name: "Dali Agents", url: "https://daliagents.com" }],
+    creator: "Dali Agents",
+    publisher: "Masuro",
+    other: {
+      "site:created_by": "https://daliagents.com",
+    },
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="ka" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
@@ -30,10 +47,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} antialiased min-h-screen`}
       >
-        {children}
-        <Suspense fallback={null}>
-          <FloatingSocialServer />
-        </Suspense>
+        <LocaleProvider initialLocale={locale}>
+          {children}
+          <Suspense fallback={null}>
+            <FloatingSocialServer />
+          </Suspense>
+        </LocaleProvider>
       </body>
     </html>
   );

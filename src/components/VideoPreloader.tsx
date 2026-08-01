@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useLocale } from "@/i18n/LocaleProvider";
 
 export function VideoPreloader() {
+  const { t } = useLocale();
   const [showPreloader, setShowPreloader] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
@@ -39,12 +41,12 @@ export function VideoPreloader() {
     const playVideo = async () => {
       try {
         await video.play();
-      } catch (error) {
+      } catch {
         // Если автовоспроизведение заблокировано, ждем события canplay
         const handleCanPlay = async () => {
           try {
             await video.play();
-          } catch (e) {
+          } catch {
             // Игнорируем ошибки
           }
         };
@@ -82,7 +84,7 @@ export function VideoPreloader() {
               preload="none"
             >
               <source src="/11.webm" type="video/webm" />
-              Ваш браузер не поддерживает видео.
+              {t("video.unsupported")}
             </video>
           )}
         </div>
@@ -90,4 +92,3 @@ export function VideoPreloader() {
     </div>
   );
 }
-
