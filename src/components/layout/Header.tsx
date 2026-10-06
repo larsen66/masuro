@@ -6,20 +6,30 @@ import { NavItem } from "@/components/NavItem";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { Category } from "@/sanity/types";
 
-const navItems = [
-  { label: "სულ", href: "/all" },
-  { label: "ლოკალიზაცია", href: "/localization" },
-  { label: "2D ანიმაცია", href: "/animation" },
-  { label: "გრაფიკა", href: "/graphics" },
-  { label: "Voice", href: "/voice" },
-];
+const existingCategoryRoutes: Record<string, string> = {
+  localization: "/localization",
+  animation: "/animation",
+  graphics: "/graphics",
+};
 
 interface HeaderProps {
   activeNav?: string;
+  categories: Category[];
 }
 
-export function Header({ activeNav = "/" }: HeaderProps) {
+export function Header({ activeNav = "/", categories }: HeaderProps) {
+  const navItems = [
+    { label: "სულ", href: "/all" },
+    ...categories
+      .filter((category) => category.title && category.slug)
+      .map((category) => ({
+        label: category.title,
+        href: existingCategoryRoutes[category.slug] ?? `/category/${encodeURIComponent(category.slug)}`,
+      })),
+    { label: "Voice", href: "/voice" },
+  ];
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -47,7 +57,7 @@ export function Header({ activeNav = "/" }: HeaderProps) {
       <header 
         className={cn(
           "fixed top-0 left-0 right-0 z-50",
-          "grid grid-cols-3 items-center px-4 md:px-6 py-3",
+          "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center px-4 md:px-6 py-3",
           "bg-background/90 backdrop-blur-md border-b border-primary/20",
           "transition-transform duration-300 ease-in-out",
           isVisible ? "translate-y-0" : "-translate-y-full"
@@ -59,7 +69,7 @@ export function Header({ activeNav = "/" }: HeaderProps) {
         </div>
         
         {/* Center: Navigation - desktop */}
-        <nav className="hidden md:flex items-center justify-center gap-1">
+        <nav className="hidden md:flex min-w-0 items-center justify-center gap-1 overflow-x-auto">
           {navItems.map((item) => (
             <NavItem
               key={item.href}
@@ -87,7 +97,7 @@ export function Header({ activeNav = "/" }: HeaderProps) {
       {/* Mobile menu overlay */}
       <div 
         className={cn(
-          "fixed inset-0 z-40 md:hidden",
+          "fixed inset-0 z-40 overflow-y-auto md:hidden",
           "bg-background/95 backdrop-blur-lg",
           "transition-all duration-300 ease-in-out",
           isMobileMenuOpen 

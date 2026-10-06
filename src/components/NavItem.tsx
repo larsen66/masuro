@@ -14,7 +14,7 @@ export function NavItem({ label, href, isActive = false }: NavItemProps) {
     <Link
       href={href}
       className={cn(
-        "px-4 py-2 text-sm font-medium uppercase tracking-wide transition-all duration-200",
+        "shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium uppercase tracking-wide transition-all duration-200",
         "rounded-full",
         isActive
           ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"

@@ -44,7 +44,7 @@ export async function getCategories(): Promise<Category[]> {
     return await client.fetch(
       categoriesQuery,
       {},
-      { next: { revalidate: REVALIDATE_TIME } }
+      { cache: "no-store" }
     );
   } catch {
     console.error("Failed to fetch categories from Sanity");

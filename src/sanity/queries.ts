@@ -79,7 +79,7 @@ export const featuredPortfolioItemsQuery = groq`
 
 // Get all categories
 export const categoriesQuery = groq`
-  *[_type == "category"] | order(title asc) {
+  *[_type == "category" && defined(title) && defined(slug.current)] | order(title asc) {
     _id,
     title,
     "slug": slug.current,

@@ -93,6 +93,11 @@ export async function PortfolioGridServer({ category, categorySlug }: PortfolioG
     return <PortfolioGridClient items={transformedItems} />;
   }
 
+  // An empty published category should remain empty, not show sample projects.
+  if (categorySlug) {
+    return <PortfolioGridClient items={[]} />;
+  }
+
   // Fallback to static data
   const filteredFallback = category
     ? fallbackItems.filter((item) => item.category === category)
