@@ -28,9 +28,11 @@ async function main() {
   let transaction = client.transaction().createIfNotExists({
     _id: "site-navigation",
     _type: "siteNavigation",
+    showAll: true,
     allTitle: "სულ",
     allTitleEn: "All",
     allTitleRu: "Все",
+    showVoice: true,
     voiceTitle: "ხმა",
     voiceTitleEn: "Voice",
     voiceTitleRu: "Озвучка",
@@ -38,9 +40,11 @@ async function main() {
 
   transaction = transaction.patch("site-navigation", (patch) =>
     patch.setIfMissing({
+      showAll: true,
       allTitle: "სულ",
       allTitleEn: "All",
       allTitleRu: "Все",
+      showVoice: true,
       voiceTitle: "ხმა",
       voiceTitleEn: "Voice",
       voiceTitleRu: "Озвучка",

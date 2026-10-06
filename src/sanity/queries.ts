@@ -28,9 +28,11 @@ export const portfolioItemsQuery = groq`
 
 export const siteNavigationQuery = groq`
   *[_type == "siteNavigation" && _id == "site-navigation"][0] {
+    showAll,
     allTitle,
     allTitleEn,
     allTitleRu,
+    showVoice,
     voiceTitle,
     voiceTitleEn,
     voiceTitleRu

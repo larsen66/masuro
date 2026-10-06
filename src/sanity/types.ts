@@ -34,9 +34,11 @@ export interface Category {
 }
 
 export interface SiteNavigation {
+  showAll?: boolean;
   allTitle: string;
   allTitleEn?: string;
   allTitleRu?: string;
+  showVoice?: boolean;
   voiceTitle: string;
   voiceTitleEn?: string;
   voiceTitleRu?: string;

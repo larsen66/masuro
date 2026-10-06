@@ -25,14 +25,18 @@ interface HeaderProps {
 export function Header({ activeNav = "/", categories, siteNavigation }: HeaderProps) {
   const { locale, text } = useLocale();
   const navItems = [
-    { label: localizedLabel(siteNavigation?.allTitle || text.all, siteNavigation?.allTitleEn, siteNavigation?.allTitleRu, locale), href: "/all" },
+    ...(siteNavigation?.showAll !== false
+      ? [{ label: localizedLabel(siteNavigation?.allTitle || text.all, siteNavigation?.allTitleEn, siteNavigation?.allTitleRu, locale), href: "/all" }]
+      : []),
     ...categories
       .filter((category) => category.title && category.slug)
       .map((category) => ({
         label: localizedLabel(category.title, category.titleEn, category.titleRu, locale),
         href: existingCategoryRoutes[category.slug] ?? `/category/${encodeURIComponent(category.slug)}`,
       })),
-    { label: localizedLabel(siteNavigation?.voiceTitle || text.voice, siteNavigation?.voiceTitleEn, siteNavigation?.voiceTitleRu, locale), href: "/voice" },
+    ...(siteNavigation?.showVoice !== false
+      ? [{ label: localizedLabel(siteNavigation?.voiceTitle || text.voice, siteNavigation?.voiceTitleEn, siteNavigation?.voiceTitleRu, locale), href: "/voice" }]
+      : []),
   ];
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
