@@ -201,8 +201,8 @@ export function VideoPreview({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] max-h-[90vh] bg-card border-primary/30 p-0 overflow-hidden">
-        <DialogHeader className="px-3 pt-3 pb-0">
+      <DialogContent className="flex max-h-[90dvh] w-[95vw] max-w-[90vw] flex-col gap-0 overflow-hidden bg-card p-0 border-primary/30 md:max-w-[85vw] lg:max-w-[80vw]">
+        <DialogHeader className="shrink-0 px-3 pt-3 pb-0">
           <DialogTitle className="flex items-center justify-between">
             <div>
               <span className="text-primary text-sm font-normal">{category}</span>
@@ -224,7 +224,7 @@ export function VideoPreview({
         
         {/* Video player area */}
         <div 
-          className="relative aspect-video bg-black m-2 rounded-lg overflow-hidden group"
+          className="group relative m-2 aspect-video max-h-[calc(90dvh-10rem)] shrink-0 overflow-hidden rounded-lg bg-black"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -315,9 +315,9 @@ export function VideoPreview({
         </div>
         
         {/* Video info */}
-        <div className="px-3 pb-3 pt-0">
+        <div className="min-h-0 overflow-y-auto px-3 pb-3 pt-0">
           {description && (
-            <p className="text-sm text-muted-foreground mb-1">{description}</p>
+            <p className="mb-3 whitespace-pre-line break-words rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm leading-relaxed text-foreground">{description}</p>
           )}
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>{videoUrl ? (videoInfo?.type === "youtube" ? "YouTube" : videoInfo?.type === "vimeo" ? "Vimeo" : text.video) : text.photo}</span>
