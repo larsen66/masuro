@@ -7,6 +7,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/sanity/types";
+import { useLocale } from "@/components/LocaleProvider";
 
 const existingCategoryRoutes: Record<string, string> = {
   localization: "/localization",
@@ -20,8 +21,9 @@ interface HeaderProps {
 }
 
 export function Header({ activeNav = "/", categories }: HeaderProps) {
+  const { text } = useLocale();
   const navItems = [
-    { label: "სულ", href: "/all" },
+    { label: text.all, href: "/all" },
     ...categories
       .filter((category) => category.title && category.slug)
       .map((category) => ({

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DefaultLoader } from "./DefaultLoader";
+import { useLocale } from "@/components/LocaleProvider";
 
 // Lazy load VideoPreview to improve initial page load
 const VideoPreview = lazy(() => import("./VideoPreview").then(mod => ({ default: mod.VideoPreview })));
@@ -28,6 +29,7 @@ export function PortfolioCard({
   videoUrl,
   description 
 }: PortfolioCardProps) {
+  const { text } = useLocale();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -191,7 +193,7 @@ export function PortfolioCard({
               >
                 <Image
                   src={img}
-                  alt={`${title} - Image ${imgIndex + 1}`}
+                  alt={`${title} - ${text.image} ${imgIndex + 1}`}
                   fill
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -209,14 +211,14 @@ export function PortfolioCard({
               <button
                 onClick={handlePrevious}
                 className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 text-white"
-                aria-label="Previous image"
+                aria-label={text.previousImage}
               >
                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
               </button>
               <button
                 onClick={handleNext}
                 className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 text-white"
-                aria-label="Next image"
+                aria-label={text.nextImage}
               >
                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
               </button>
@@ -236,7 +238,7 @@ export function PortfolioCard({
                       ? "bg-primary w-4 md:w-6"
                       : "bg-white/50 hover:bg-white/70"
                   )}
-                  aria-label={`Go to image ${imgIndex + 1}`}
+                  aria-label={`${text.goToImage} ${imgIndex + 1}`}
                 />
               ))}
             </div>
@@ -245,7 +247,7 @@ export function PortfolioCard({
           {/* Video indicator badge */}
           {videoUrl && (
             <div className="absolute top-2 right-2 bg-primary/90 px-2 py-0.5 rounded text-xs text-white font-medium z-20">
-              VIDEO
+              {text.video.toUpperCase()}
             </div>
           )}
           

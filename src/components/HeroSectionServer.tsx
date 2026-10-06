@@ -1,8 +1,9 @@
 import { getHeroSection } from "@/sanity/lib";
 import { HeroSection } from "./HeroSection";
+import type { HeroPage } from "@/lib/i18n";
 
 interface HeroSectionServerProps {
-  page: string;
+  page: HeroPage | "all";
   // Fallback props when CMS is not configured
   fallbackBadge?: string;
   fallbackTitle?: React.ReactNode;
@@ -36,6 +37,7 @@ export async function HeroSectionServer({
 
     return (
       <HeroSection
+        page={page}
         badge={heroData.badge}
         title={title}
         description={heroData.description}
@@ -46,6 +48,7 @@ export async function HeroSectionServer({
   // Fallback to static props
   return (
     <HeroSection
+      page={page}
       badge={fallbackBadge}
       title={fallbackTitle}
       description={fallbackDescription}

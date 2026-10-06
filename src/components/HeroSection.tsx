@@ -1,8 +1,11 @@
 "use client";
 
 import { ReactNode, useState, useRef, useCallback, useEffect } from "react";
+import { useLocale } from "@/components/LocaleProvider";
+import type { HeroPage } from "@/lib/i18n";
 
 interface HeroSectionProps {
+  page?: HeroPage;
   badge?: string;
   title?: ReactNode;
   description?: string;
@@ -10,11 +13,14 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({
+  page,
   badge = "ლოკალიზაცია • დუბლაჟი • გრაფიკა",
   title = <>პროფესიონალური<span className="text-primary"> ვიდეო </span>ლოკალიზაცია</>,
   description = "ჩვენ ვქმნით მაღალი ხარისხის ვიდეო კონტენტს თქვენი ბრენდისთვის. დუბლაჟი, სუბტიტრები, გრაფიკა და ანიმაცია — ყველაფერი ერთ სივრცეში.",
   showSvgHero = false
 }: HeroSectionProps) {
+  const { locale, text } = useLocale();
+  const localizedHero = page && locale !== "GE" ? text.hero[page] : null;
   const [isHovered, setIsHovered] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const hero1Ref = useRef<HTMLImageElement>(null);
@@ -244,7 +250,7 @@ export function HeroSection({
           className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 md:mb-6 leading-tight animate-fade-in-up"
           style={{ animationDelay: "0ms" }}
         >
-          {title}
+          {localizedHero ? <>{localizedHero.before}<span className="text-primary"> {localizedHero.highlight} </span>{localizedHero.after}</> : title}
         </h1>
 
         {/* Description - animated */}
@@ -252,7 +258,7 @@ export function HeroSection({
           className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2 animate-fade-in-up"
           style={{ animationDelay: "100ms" }}
         >
-          {description}
+          {localizedHero?.description ?? description}
         </p>
       </div>
     </section>

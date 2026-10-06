@@ -6,16 +6,19 @@ import { Sidebar } from "./Sidebar";
 import { DottedPattern } from "@/components/DottedPattern";
 import { CustomCursor } from "@/components/CustomCursor";
 import type { Category } from "@/sanity/types";
+import type { Locale } from "@/lib/i18n";
+import { LocaleProvider } from "@/components/LocaleProvider";
 
 interface MainLayoutProps {
   children: React.ReactNode;
   activeNav?: string;
   categories: Category[];
+  initialLocale: Locale;
 }
 
 const CURSOR_STORAGE_KEY = "masuro_selected_cursor";
 
-export function MainLayoutClient({ children, activeNav = "/", categories }: MainLayoutProps) {
+export function MainLayoutClient({ children, activeNav = "/", categories, initialLocale }: MainLayoutProps) {
   const [cursorIcon, setCursorIcon] = useState<string>("/cursors/selection.svg");
   const [isMobile, setIsMobile] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -49,6 +52,7 @@ export function MainLayoutClient({ children, activeNav = "/", categories }: Main
   };
 
   return (
+    <LocaleProvider initialLocale={initialLocale}>
     <div 
       className={`min-h-screen bg-background relative overflow-x-hidden ${isMounted && !isMobile ? "cursor-none" : ""}`}
       suppressHydrationWarning
@@ -78,5 +82,6 @@ export function MainLayoutClient({ children, activeNav = "/", categories }: Main
         {children}
       </main>
     </div>
+    </LocaleProvider>
   );
 }

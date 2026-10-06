@@ -1,6 +1,8 @@
 "use client";
 
 import { PortfolioCard } from "./PortfolioCard";
+import { useLocale } from "@/components/LocaleProvider";
+import { formatProjectCount } from "@/lib/i18n";
 
 interface PortfolioItem {
   id: string;
@@ -17,12 +19,13 @@ interface PortfolioGridClientProps {
 }
 
 export function PortfolioGridClient({ items }: PortfolioGridClientProps) {
+  const { locale, text } = useLocale();
   return (
     <section>
       {/* Section header */}
       <div className="flex items-center justify-between mb-4 md:mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-foreground">ჩვენი პროექტები</h2>
-        <span className="text-xs md:text-sm text-muted-foreground">{items.length} პროექტი</span>
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">{text.projects}</h2>
+        <span className="text-xs md:text-sm text-muted-foreground">{formatProjectCount(items.length, locale)}</span>
       </div>
       
       {/* Grid - 1 col mobile, 2 col tablet, 3 col desktop */}

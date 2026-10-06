@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Play, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import { useLocale } from "@/components/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { DefaultLoader } from "./DefaultLoader";
 
@@ -68,6 +69,7 @@ export function VideoPreview({
   description,
   autoPlay = false,
 }: VideoPreviewProps) {
+  const { text } = useLocale();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   // Use imageUrls array if provided, otherwise fallback to single imageUrl
@@ -192,7 +194,7 @@ export function VideoPreview({
           console.error("Video playback error:", e);
         }}
       >
-        Your browser does not support the video tag.
+        {text.browserVideoSupport}
       </video>
     );
   };
@@ -248,7 +250,7 @@ export function VideoPreview({
                   >
                     <Image
                       src={img}
-                      alt={`${title} - Image ${imgIndex + 1}`}
+                      alt={`${title} - ${text.image} ${imgIndex + 1}`}
                       fill
                       className="object-cover"
                       sizes="(max-width: 1024px) 100vw, 900px"
@@ -264,14 +266,14 @@ export function VideoPreview({
                   <button
                     onClick={handlePrevious}
                     className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-opacity duration-300 text-white"
-                    aria-label="Previous image"
+                    aria-label={text.previousImage}
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={handleNext}
                     className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-opacity duration-300 text-white"
-                    aria-label="Next image"
+                    aria-label={text.nextImage}
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
@@ -291,7 +293,7 @@ export function VideoPreview({
                           ? "bg-primary w-8"
                           : "bg-white/50 hover:bg-white/70"
                       )}
-                      aria-label={`Go to image ${imgIndex + 1}`}
+                      aria-label={`${text.goToImage} ${imgIndex + 1}`}
                     />
                   ))}
                 </div>
@@ -318,8 +320,8 @@ export function VideoPreview({
             <p className="text-sm text-muted-foreground mb-1">{description}</p>
           )}
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>{videoUrl ? (videoInfo?.type === "youtube" ? "YouTube" : videoInfo?.type === "vimeo" ? "Vimeo" : "Video") : "ფოტო"}</span>
-            {videoUrl && !isPlaying && <span className="text-primary">Click to play</span>}
+            <span>{videoUrl ? (videoInfo?.type === "youtube" ? "YouTube" : videoInfo?.type === "vimeo" ? "Vimeo" : text.video) : text.photo}</span>
+            {videoUrl && !isPlaying && <span className="text-primary">{text.clickToPlay}</span>}
           </div>
         </div>
       </DialogContent>

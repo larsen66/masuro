@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Suspense } from "react";
 import { FloatingSocialServer } from "@/components/FloatingSocialServer";
+import { cookies } from "next/headers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,13 +16,15 @@ export const metadata: Metadata = {
   description: "Professional video localization and production services",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = (await cookies()).get("masuro_locale")?.value;
+  const htmlLang = locale === "RU" ? "ru" : locale === "EN" ? "en" : "ka";
   return (
-    <html lang="ka" suppressHydrationWarning>
+    <html lang={htmlLang} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
