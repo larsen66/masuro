@@ -26,9 +26,20 @@ export interface PortfolioItem {
 export interface Category {
   _id: string;
   title: string;
+  titleEn?: string;
+  titleRu?: string;
   slug: string;
   description?: string;
   color?: string;
+}
+
+export interface SiteNavigation {
+  allTitle: string;
+  allTitleEn?: string;
+  allTitleRu?: string;
+  voiceTitle: string;
+  voiceTitleEn?: string;
+  voiceTitleRu?: string;
 }
 
 export interface HeroSection {

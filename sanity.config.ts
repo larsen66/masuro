@@ -30,6 +30,18 @@ const structure = (S: any) =>
         .child(S.documentTypeList("category").title("Categories")),
       
       S.divider(),
+
+      S.listItem()
+        .title("Site Navigation")
+        .schemaType("siteNavigation")
+        .child(
+          S.document()
+            .schemaType("siteNavigation")
+            .documentId("site-navigation")
+            .title("Site Navigation")
+        ),
+
+      S.divider(),
       
       // Hero Sections
       S.listItem()

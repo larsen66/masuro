@@ -4,9 +4,10 @@ import {
   portfolioItemsByCategoryQuery,
   heroSectionQuery,
   categoriesQuery,
+  siteNavigationQuery,
   siteSettingsQuery,
 } from "./queries";
-import type { PortfolioItem, Category, HeroSection, SiteSettings } from "./types";
+import type { PortfolioItem, Category, HeroSection, SiteSettings, SiteNavigation } from "./types";
 
 // Revalidate data every 5 minutes for better performance
 const REVALIDATE_TIME = 300;
@@ -49,6 +50,15 @@ export async function getCategories(): Promise<Category[]> {
   } catch {
     console.error("Failed to fetch categories from Sanity");
     return [];
+  }
+}
+
+export async function getSiteNavigation(): Promise<SiteNavigation | null> {
+  try {
+    return await client.fetch(siteNavigationQuery, {}, { cache: "no-store" });
+  } catch {
+    console.error("Failed to fetch site navigation from Sanity");
+    return null;
   }
 }
 

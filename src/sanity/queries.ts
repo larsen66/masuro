@@ -26,6 +26,17 @@ export const portfolioItemsQuery = groq`
   }
 `;
 
+export const siteNavigationQuery = groq`
+  *[_type == "siteNavigation" && _id == "site-navigation"][0] {
+    allTitle,
+    allTitleEn,
+    allTitleRu,
+    voiceTitle,
+    voiceTitleEn,
+    voiceTitleRu
+  }
+`;
+
 // Get portfolio items by category slug
 export const portfolioItemsByCategoryQuery = groq`
   *[_type == "portfolioItem" && category->slug.current == $categorySlug] | order(order asc) {
@@ -82,6 +93,8 @@ export const categoriesQuery = groq`
   *[_type == "category" && defined(title) && defined(slug.current)] | order(title asc) {
     _id,
     title,
+    titleEn,
+    titleRu,
     "slug": slug.current,
     description,
     color

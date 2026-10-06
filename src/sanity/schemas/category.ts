@@ -7,9 +7,21 @@ export const category = defineType({
   fields: [
     defineField({
       name: "title",
-      title: "Title",
+      title: "Title (Georgian)",
       type: "string",
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "titleEn",
+      title: "Title (English)",
+      type: "string",
+      description: "Shown in the menu when EN is selected. Falls back to Georgian if empty.",
+    }),
+    defineField({
+      name: "titleRu",
+      title: "Title (Russian)",
+      type: "string",
+      description: "Shown in the menu when RU is selected. Falls back to Georgian if empty.",
     }),
     defineField({
       name: "slug",

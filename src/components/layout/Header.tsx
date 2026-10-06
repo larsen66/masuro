@@ -6,8 +6,9 @@ import { NavItem } from "@/components/NavItem";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Category } from "@/sanity/types";
+import type { Category, SiteNavigation } from "@/sanity/types";
 import { useLocale } from "@/components/LocaleProvider";
+import { localizedLabel } from "@/lib/i18n";
 
 const existingCategoryRoutes: Record<string, string> = {
   localization: "/localization",
@@ -18,19 +19,20 @@ const existingCategoryRoutes: Record<string, string> = {
 interface HeaderProps {
   activeNav?: string;
   categories: Category[];
+  siteNavigation: SiteNavigation | null;
 }
 
-export function Header({ activeNav = "/", categories }: HeaderProps) {
-  const { text } = useLocale();
+export function Header({ activeNav = "/", categories, siteNavigation }: HeaderProps) {
+  const { locale, text } = useLocale();
   const navItems = [
-    { label: text.all, href: "/all" },
+    { label: localizedLabel(siteNavigation?.allTitle || text.all, siteNavigation?.allTitleEn, siteNavigation?.allTitleRu, locale), href: "/all" },
     ...categories
       .filter((category) => category.title && category.slug)
       .map((category) => ({
-        label: category.title,
+        label: localizedLabel(category.title, category.titleEn, category.titleRu, locale),
         href: existingCategoryRoutes[category.slug] ?? `/category/${encodeURIComponent(category.slug)}`,
       })),
-    { label: "Voice", href: "/voice" },
+    { label: localizedLabel(siteNavigation?.voiceTitle || text.voice, siteNavigation?.voiceTitleEn, siteNavigation?.voiceTitleRu, locale), href: "/voice" },
   ];
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);

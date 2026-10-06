@@ -1,6 +1,11 @@
 export type Locale = "GE" | "EN" | "RU";
 export type HeroPage = "localization" | "animation" | "graphics";
 
+export function localizedLabel(georgian: string, english: string | undefined, russian: string | undefined, locale: Locale) {
+  const translation = locale === "EN" ? english : locale === "RU" ? russian : georgian;
+  return translation?.trim() || georgian;
+}
+
 export function formatProjectCount(count: number, locale: Locale) {
   if (locale === "EN") return `${count} ${count === 1 ? "project" : "projects"}`;
   if (locale === "RU") {
@@ -15,6 +20,7 @@ export function formatProjectCount(count: number, locale: Locale) {
 export const translations = {
   GE: {
     all: "სულ",
+    voice: "ხმა",
     projects: "ჩვენი პროექტები",
     photo: "ფოტო",
     image: "სურათი",
@@ -47,6 +53,7 @@ export const translations = {
   },
   EN: {
     all: "All",
+    voice: "Voice",
     projects: "Our projects",
     photo: "Photo",
     image: "Image",
@@ -79,6 +86,7 @@ export const translations = {
   },
   RU: {
     all: "Все",
+    voice: "Озвучка",
     projects: "Наши проекты",
     photo: "Фото",
     image: "Изображение",

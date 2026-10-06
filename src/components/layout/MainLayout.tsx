@@ -5,7 +5,7 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { DottedPattern } from "@/components/DottedPattern";
 import { CustomCursor } from "@/components/CustomCursor";
-import type { Category } from "@/sanity/types";
+import type { Category, SiteNavigation } from "@/sanity/types";
 import type { Locale } from "@/lib/i18n";
 import { LocaleProvider } from "@/components/LocaleProvider";
 
@@ -13,12 +13,13 @@ interface MainLayoutProps {
   children: React.ReactNode;
   activeNav?: string;
   categories: Category[];
+  siteNavigation: SiteNavigation | null;
   initialLocale: Locale;
 }
 
 const CURSOR_STORAGE_KEY = "masuro_selected_cursor";
 
-export function MainLayoutClient({ children, activeNav = "/", categories, initialLocale }: MainLayoutProps) {
+export function MainLayoutClient({ children, activeNav = "/", categories, siteNavigation, initialLocale }: MainLayoutProps) {
   const [cursorIcon, setCursorIcon] = useState<string>("/cursors/selection.svg");
   const [isMobile, setIsMobile] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -72,7 +73,7 @@ export function MainLayoutClient({ children, activeNav = "/", categories, initia
       </div>
       
       {/* Sticky Header */}
-      <Header activeNav={activeNav} categories={categories} />
+      <Header activeNav={activeNav} categories={categories} siteNavigation={siteNavigation} />
       
       {/* Floating Sidebar - hidden on mobile via component */}
       <Sidebar onToolChange={handleCursorChange} initialCursor={cursorIcon} />
